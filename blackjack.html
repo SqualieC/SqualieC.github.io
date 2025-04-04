@@ -17,12 +17,12 @@
       <style>
          /* Blackjack-specific styles */
          body {
-             background-color: black;
-             color: white;
+             background-color: #181818;
+             color: #e0e0e0;
          }
          .btn {
-             background-color: black;
-             color: white;
+             background-color: #000 !important;
+             color: #fff !important;
          }
          .game-container {
              margin-top: 30px;
@@ -32,6 +32,7 @@
              display: flex;
              justify-content: center;
              margin: 20px 0;
+             min-height: 140px;
          }
          .card {
              width: 100px;
@@ -44,9 +45,68 @@
              justify-content: center;
              align-items: center;
              font-size: 24px;
+             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
          }
          .controls {
              margin-top: 20px;
+         }
+         .betting-controls {
+             margin: 20px 0;
+             padding: 15px;
+             background-color: #333;
+             border-radius: 10px;
+         }
+         #message {
+             font-size: 18px;
+             font-weight: bold;
+             min-height: 50px;
+             margin: 15px 0;
+         }
+         .balance-display {
+             background-color: #2a6cb1;
+             color: white;
+             padding: 10px;
+             border-radius: 5px;
+             margin-bottom: 15px;
+         }
+         #login-section {
+             margin: 20px auto;
+             max-width: 500px;
+             padding: 20px;
+             background-color: #333;
+             border-radius: 10px;
+         }
+         .form-group {
+             margin-bottom: 15px;
+         }
+         .form-group label {
+             display: block;
+             margin-bottom: 5px;
+         }
+         .form-group input {
+             width: 100%;
+             padding: 8px;
+             border-radius: 4px;
+             border: 1px solid #555;
+             background-color: #444;
+             color: #fff;
+         }
+         .tab-container {
+             display: flex;
+             margin-bottom: 20px;
+         }
+         .tab {
+             flex: 1;
+             padding: 10px;
+             text-align: center;
+             background-color: #222;
+             cursor: pointer;
+         }
+         .tab.active {
+             background-color: #4a88c7;
+         }
+         #register-form {
+             display: none;
          }
       </style>
    </head>
@@ -55,34 +115,106 @@
       <div class="container">
          <nav>
             <a class="btn btn-primary" href="index.html" role="button">Home</a>
-            <a class="btn btn-primary" href="art.html" role="button">My Art</a>
             <a class="btn btn-primary" href="blackjack.html" role="button">Blackjack</a>
             <button onclick="toggleMenu()" class="mobile-menu-button">Menu</button>
          </nav>
 
          <h1>Blackjack</h1>
          
-         <div class="game-container">
-            <h2>Your Cards: <span id="player-score">0</span></h2>
-            <div id="player-cards" class="card-container"></div>
-            
-            <h2>Dealer Cards: <span id="dealer-score">0</span></h2>
-            <div id="dealer-cards" class="card-container"></div>
-            
-            <div class="controls">
-               <button id="deal-button" class="btn btn-primary">Deal</button>
-               <button id="hit-button" class="btn btn-primary" disabled>Hit</button>
-               <button id="stand-button" class="btn btn-primary" disabled>Stand</button>
+         <!-- Login Section -->
+         <div id="login-section" style="display: none;">
+            <div class="tab-container">
+               <div class="tab active" onclick="showTab('login')">Login</div>
+               <div class="tab" onclick="showTab('register')">Register</div>
             </div>
             
-            <div id="message" class="mt-4"></div>
+            <form id="login-form">
+               <div class="form-group">
+                  <label for="login-username">Username:</label>
+                  <input type="text" id="login-username" required>
+               </div>
+               <div class="form-group">
+                  <label for="login-password">Password:</label>
+                  <input type="password" id="login-password" required>
+               </div>
+               <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+            
+            <form id="register-form">
+               <div class="form-group">
+                  <label for="register-username">Username:</label>
+                  <input type="text" id="register-username" required>
+               </div>
+               <div class="form-group">
+                  <label for="register-password">Password:</label>
+                  <input type="password" id="register-password" required>
+               </div>
+               <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+         </div>
+         
+         <!-- Game Section -->
+         <div id="game-section">
+            <div id="user-info" class="text-end mb-3"></div>
+            
+            <div class="balance-display">
+               Balance: $<span id="player-balance">100</span>
+               <button id="login-button" class="btn btn-primary float-end">Login/Register</button>
+            </div>
+            
+            <div class="betting-controls">
+               <div class="form-group">
+                  <label for="bet-amount">Bet Amount:</label>
+                  <input type="number" id="bet-amount" min="10" value="10" class="form-control">
+               </div>
+               <button id="place-bet-button" class="btn btn-primary">Place Bet</button>
+            </div>
+            
+            <div class="game-container">
+               <h2>Dealer Cards: <span id="dealer-score">0</span></h2>
+               <div id="dealer-cards" class="card-container"></div>
+               
+               <h2>Your Cards: <span id="player-score">0</span></h2>
+               <div id="player-cards" class="card-container"></div>
+               
+               <div id="message" class="alert"></div>
+               
+               <div class="controls">
+                  <button id="deal-button" class="btn btn-primary" disabled>Deal</button>
+                  <button id="hit-button" class="btn btn-primary" disabled>Hit</button>
+                  <button id="stand-button" class="btn btn-primary" disabled>Stand</button>
+               </div>
+            </div>
+            
+            <!-- Game History -->
+            <div id="game-history" class="mt-5">
+               <h3>Game History</h3>
+               <div id="history-container" class="table-responsive">
+                  <!-- History will be populated by JavaScript -->
+               </div>
+            </div>
          </div>
 
-         <!--To Do: Implement blackjack game functionality-->
       </div>
       
       <!-- Include JavaScript files -->
       <script src="js/script.js"></script>
       <script src="js/blackjack.js"></script>
+      <script>
+         // Tab switching
+         function showTab(tab) {
+            if (tab === 'login') {
+               document.getElementById('login-form').style.display = 'block';
+               document.getElementById('register-form').style.display = 'none';
+               document.querySelectorAll('.tab')[0].classList.add('active');
+               document.querySelectorAll('.tab')[1].classList.remove('active');
+            } else {
+               document.getElementById('login-form').style.display = 'none';
+               document.getElementById('register-form').style.display = 'block';
+               document.querySelectorAll('.tab')[0].classList.remove('active');
+               document.querySelectorAll('.tab')[1].classList.add('active');
+            }
+         }
+      </script>
    </body>
 </html>
