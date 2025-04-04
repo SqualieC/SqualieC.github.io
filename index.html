@@ -13,7 +13,7 @@
       <link rel="stylesheet" href="bootstrap.css">
       <link rel="stylesheet" href="css/styles.css">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>SqualieC </title>
+      <title>SqualieC</title>
    </head>
 
 
@@ -25,34 +25,205 @@
             <button onclick="toggleMenu()" class="mobile-menu-button">Menu</button>
          </nav>
          
-         <h1>Welcome to My Website</h1>
-         
-         <p>This is a simple website that I'm building to showcase my work and projects.</p>
-         
-         <div class="feature-section">
-            <div class="feature-card">
-               <h2>Blackjack Game</h2>
-               <p>Try your luck at our interactive Blackjack game with betting system and user accounts!</p>
-               <a href="blackjack.html" class="btn btn-primary">Play Now</a>
+         <!-- Login Section -->
+         <div id="login-section" style="display: none;">
+            <div class="tab-container">
+               <div class="tab active" onclick="showTab('login')">Login</div>
+               <div class="tab" onclick="showTab('register')">Register</div>
             </div>
-         </div>
-
-         <div class="about-section mt-5">
-            <h2>About This Site</h2>
-            <p>This website was created as a personal project to practice web development skills including HTML, CSS, and JavaScript.</p>
-            <p>Features include:</p>
-            <ul>
-               <li>Responsive design that works on all devices</li>
-               <li>Interactive JavaScript games</li>
-               <li>User authentication system</li>
-               <li>Modern styling with animations</li>
-            </ul>
+            
+            <form id="login-form">
+               <div class="form-group">
+                  <label for="login-username">Username:</label>
+                  <input type="text" id="login-username" required>
+               </div>
+               <div class="form-group">
+                  <label for="login-password">Password:</label>
+                  <input type="password" id="login-password" required>
+               </div>
+               <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+            
+            <form id="register-form">
+               <div class="form-group">
+                  <label for="register-username">Username:</label>
+                  <input type="text" id="register-username" required>
+               </div>
+               <div class="form-group">
+                  <label for="register-password">Password:</label>
+                  <input type="password" id="register-password" required>
+               </div>
+               <button type="submit" class="btn btn-primary">Register</button>
+            </form>
          </div>
          
-         <!--To Do: Add more interactive features and projects-->
+         <!-- Main Content Section -->
+         <div id="main-content">
+            <div id="user-info" class="user-info"></div>
+            
+            <div class="balance-display">
+               <span id="welcome-message">Welcome to my website!</span>
+               <button id="login-button" class="btn btn-primary float-end">Login/Register</button>
+            </div>
+            
+            <h1>Welcome to My Website</h1>
+            
+            <p>This is a simple website that I'm building to showcase my work and projects.</p>
+            
+            <div class="feature-section">
+               <div class="feature-card">
+                  <h2>Blackjack Game</h2>
+                  <p>Try your luck at our interactive Blackjack game with betting system and user accounts!</p>
+                  <a href="blackjack.html" class="btn btn-primary">Play Now</a>
+               </div>
+            </div>
+
+            <div class="about-section mt-5">
+               <h2>About This Site</h2>
+               <p>This website was created as a personal project to practice web development skills including HTML, CSS, and JavaScript.</p>
+               <p>Features include:</p>
+               <ul>
+                  <li>Responsive design that works on all devices</li>
+                  <li>Interactive JavaScript games</li>
+                  <li>User authentication system</li>
+                  <li>Modern styling with animations</li>
+               </ul>
+            </div>
+            
+            <div id="message" class="alert"></div>
+            
+            <!--To Do: Add more interactive features and projects-->
+         </div>
       </div>
 
-      <!-- Include JavaScript file -->
+      <!-- Include JavaScript files -->
       <script src="js/script.js"></script>
+      <script>
+         // User login and authentication functions
+         document.addEventListener('DOMContentLoaded', function() {
+            const loginButton = document.getElementById('login-button');
+            const loginSection = document.getElementById('login-section');
+            const mainContent = document.getElementById('main-content');
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const userInfoEl = document.getElementById('user-info');
+            const messageEl = document.getElementById('message');
+            const welcomeMessage = document.getElementById('welcome-message');
+            
+            // Get users from local storage
+            let users = JSON.parse(localStorage.getItem('blackjackUsers')) || {};
+            let currentUser = localStorage.getItem('currentBlackjackUser');
+            
+            // Check if user is logged in
+            if (currentUser && users[currentUser]) {
+               userInfoEl.textContent = `Logged in as: ${currentUser}`;
+               loginButton.textContent = 'Logout';
+               welcomeMessage.textContent = `Welcome back, ${currentUser}!`;
+            }
+            
+            // Login button event listener
+            loginButton.addEventListener('click', function() {
+               if (currentUser) {
+                  // If logged in, log out
+                  localStorage.removeItem('currentBlackjackUser');
+                  currentUser = null;
+                  userInfoEl.textContent = '';
+                  loginButton.textContent = 'Login/Register';
+                  welcomeMessage.textContent = 'Welcome to my website!';
+                  messageEl.textContent = 'You have been logged out.';
+                  messageEl.className = 'alert';
+               } else {
+                  // Show login form
+                  toggleLoginSection();
+               }
+            });
+            
+            // Toggle login section visibility
+            function toggleLoginSection() {
+               if (loginSection.style.display === 'none') {
+                  loginSection.style.display = 'block';
+                  mainContent.style.opacity = '0.5';
+               } else {
+                  loginSection.style.display = 'none';
+                  mainContent.style.opacity = '1';
+               }
+            }
+            
+            // Login form submit handler
+            loginForm.addEventListener('submit', function(e) {
+               e.preventDefault();
+               const username = document.getElementById('login-username').value;
+               const password = document.getElementById('login-password').value;
+               
+               if (users[username] && users[username].password === password) {
+                  currentUser = username;
+                  localStorage.setItem('currentBlackjackUser', username);
+                  
+                  userInfoEl.textContent = `Logged in as: ${username}`;
+                  loginButton.textContent = 'Logout';
+                  welcomeMessage.textContent = `Welcome back, ${username}!`;
+                  
+                  messageEl.textContent = `Successfully logged in as ${username}!`;
+                  messageEl.className = 'alert';
+                  
+                  toggleLoginSection();
+                  loginForm.reset();
+               } else {
+                  alert('Invalid username or password');
+               }
+            });
+            
+            // Register form submit handler
+            registerForm.addEventListener('submit', function(e) {
+               e.preventDefault();
+               const username = document.getElementById('register-username').value;
+               const password = document.getElementById('register-password').value;
+               
+               if (users[username]) {
+                  alert('Username already exists');
+                  return;
+               }
+               
+               // Create new user
+               users[username] = {
+                  password: password,
+                  balance: 100,
+                  history: []
+               };
+               
+               // Save to localStorage
+               localStorage.setItem('blackjackUsers', JSON.stringify(users));
+               
+               // Auto login
+               currentUser = username;
+               localStorage.setItem('currentBlackjackUser', username);
+               
+               userInfoEl.textContent = `Logged in as: ${username}`;
+               loginButton.textContent = 'Logout';
+               welcomeMessage.textContent = `Welcome, ${username}!`;
+               
+               messageEl.textContent = `Account created and logged in as ${username}!`;
+               messageEl.className = 'alert';
+               
+               toggleLoginSection();
+               registerForm.reset();
+            });
+            
+            // Tab switching
+            window.showTab = function(tab) {
+               if (tab === 'login') {
+                  document.getElementById('login-form').style.display = 'block';
+                  document.getElementById('register-form').style.display = 'none';
+                  document.querySelectorAll('.tab')[0].classList.add('active');
+                  document.querySelectorAll('.tab')[1].classList.remove('active');
+               } else {
+                  document.getElementById('login-form').style.display = 'none';
+                  document.getElementById('register-form').style.display = 'block';
+                  document.querySelectorAll('.tab')[0].classList.remove('active');
+                  document.querySelectorAll('.tab')[1].classList.add('active');
+               }
+            }
+         });
+      </script>
    </body>
 </html>

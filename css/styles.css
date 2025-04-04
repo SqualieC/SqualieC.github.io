@@ -5,7 +5,7 @@ body {
     margin: 0;
     padding: 0;
     color: #e0e0e0;
-    background-color: #222222;
+    background-color: #181818;
 }
 
 .container {
@@ -84,6 +84,82 @@ nav.active {
     transform: translateY(2px);
     box-shadow: 0 1px 0 #2a6cb1;
     background-color: #2a6cb1;
+}
+
+/* Login System Styles */
+#login-section {
+    margin: 20px auto;
+    max-width: 500px;
+    padding: 20px;
+    background-color: #333;
+    border-radius: 10px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    background-color: #444;
+    color: #fff;
+}
+
+.tab-container {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.tab {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    background-color: #222;
+    cursor: pointer;
+}
+
+.tab.active {
+    background-color: #4a88c7;
+}
+
+#register-form {
+    display: none;
+}
+
+.balance-display {
+    background-color: #2a6cb1;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+#message {
+    font-size: 18px;
+    font-weight: bold;
+    min-height: 50px;
+    margin: 15px 0;
+}
+
+.alert {
+    padding: 10px;
+    border-radius: 5px;
+    margin: 15px 0;
+}
+
+.user-info {
+    text-align: right;
+    margin-bottom: 15px;
+    color: #4a88c7;
+    font-weight: bold;
 }
 
 /* Feature Section Styles */
@@ -187,6 +263,44 @@ img:hover {
 
 .card {
     animation: dealCard 0.5s ease forwards;
+}
+
+/* Game-specific styles */
+.game-container {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.card-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    min-height: 140px;
+}
+
+.card {
+    width: 100px;
+    height: 140px;
+    background-color: white;
+    color: black;
+    margin: 0 10px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.controls {
+    margin-top: 20px;
+}
+
+.betting-controls {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #333;
+    border-radius: 10px;
 }
 
 /* Responsive design */

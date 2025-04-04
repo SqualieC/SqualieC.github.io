@@ -5,6 +5,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add a simple animation to page elements
     const headings = document.querySelectorAll('h1, h2, h3');
     headings.forEach((heading, index) => {
+        // Set the initial state for consistency
+        heading.style.opacity = '0';
+        heading.style.transform = 'translateY(20px)';
+        
+        // Animate in with a slight delay per heading
         setTimeout(() => {
             heading.style.opacity = '1';
             heading.style.transform = 'translateY(0)';
