@@ -11,23 +11,78 @@
       gtag('config', 'G-BVQJSDS5V9');
       </script>
       <link rel="stylesheet" href="bootstrap.css">
-      <title>SqualieC </title>
+      <link rel="stylesheet" href="css/styles.css">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>SqualieC - Blackjack</title>
+      <style>
+         /* Blackjack-specific styles */
+         body {
+             background-color: black;
+             color: white;
+         }
+         .btn {
+             background-color: black;
+             color: white;
+         }
+         .game-container {
+             margin-top: 30px;
+             text-align: center;
+         }
+         .card-container {
+             display: flex;
+             justify-content: center;
+             margin: 20px 0;
+         }
+         .card {
+             width: 100px;
+             height: 140px;
+             background-color: white;
+             color: black;
+             margin: 0 10px;
+             border-radius: 10px;
+             display: flex;
+             justify-content: center;
+             align-items: center;
+             font-size: 24px;
+         }
+         .controls {
+             margin-top: 20px;
+         }
+      </style>
    </head>
 
-
    <body>
-      <div>
-         <a class="btn btn-primary" href="index.html" role="button">Home</a>
-         <a class="btn btn-primary" href="art.html" role="button">My Art</a>
-         <a class="btn btn-primary" href="blackjack.html" role="button">Blackjack</a>
+      <div class="container">
+         <nav>
+            <a class="btn btn-primary" href="index.html" role="button">Home</a>
+            <a class="btn btn-primary" href="art.html" role="button">My Art</a>
+            <a class="btn btn-primary" href="blackjack.html" role="button">Blackjack</a>
+            <button onclick="toggleMenu()" class="mobile-menu-button">Menu</button>
+         </nav>
+
+         <h1>Blackjack</h1>
+         
+         <div class="game-container">
+            <h2>Your Cards: <span id="player-score">0</span></h2>
+            <div id="player-cards" class="card-container"></div>
+            
+            <h2>Dealer Cards: <span id="dealer-score">0</span></h2>
+            <div id="dealer-cards" class="card-container"></div>
+            
+            <div class="controls">
+               <button id="deal-button" class="btn btn-primary">Deal</button>
+               <button id="hit-button" class="btn btn-primary" disabled>Hit</button>
+               <button id="stand-button" class="btn btn-primary" disabled>Stand</button>
+            </div>
+            
+            <div id="message" class="mt-4"></div>
+         </div>
+
+         <!--To Do: Implement blackjack game functionality-->
       </div>
-
-        <!--To Do: Art Page, blackjack page, figure out js, do something that involves multiple users-->
-
-    <h1>Blackjack Page</h1>
+      
+      <!-- Include JavaScript files -->
+      <script src="js/script.js"></script>
+      <script src="js/blackjack.js"></script>
    </body>
-
-
-
-
 </html>
