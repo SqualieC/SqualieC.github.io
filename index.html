@@ -14,6 +14,21 @@
       <link rel="stylesheet" href="css/styles.css">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>SqualieC</title>
+      <style>
+         .password-requirements {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 5px;
+         }
+         .invalid {
+            border-color: #ff5555 !important;
+         }
+         .error-message {
+            color: #ff5555;
+            font-size: 12px;
+            margin-top: 5px;
+         }
+      </style>
    </head>
 
 
@@ -48,10 +63,18 @@
                <div class="form-group">
                   <label for="register-username">Username:</label>
                   <input type="text" id="register-username" required>
+                  <div id="username-error" class="error-message"></div>
+               </div>
+               <div class="form-group">
+                  <label for="register-email">Email:</label>
+                  <input type="email" id="register-email" required>
+                  <div id="email-error" class="error-message"></div>
                </div>
                <div class="form-group">
                   <label for="register-password">Password:</label>
                   <input type="password" id="register-password" required>
+                  <div class="password-requirements">At least 8 characters, including at least one letter and one number</div>
+                  <div id="password-error" class="error-message"></div>
                </div>
                <button type="submit" class="btn btn-primary">Register</button>
             </form>
@@ -109,6 +132,14 @@
             const userInfoEl = document.getElementById('user-info');
             const messageEl = document.getElementById('message');
             const welcomeMessage = document.getElementById('welcome-message');
+            
+            // Clear all accounts (only do this once)
+            if (!localStorage.getItem('accountsCleared')) {
+               localStorage.removeItem('blackjackUsers');
+               localStorage.removeItem('currentBlackjackUser');
+               localStorage.setItem('accountsCleared', 'true');
+               console.log('All accounts cleared');
+            }
             
             // Get users from local storage
             let users = JSON.parse(localStorage.getItem('blackjackUsers')) || {};
@@ -173,20 +204,71 @@
                }
             });
             
+            // Input validation
+            const registerUsername = document.getElementById('register-username');
+            const registerEmail = document.getElementById('register-email');
+            const registerPassword = document.getElementById('register-password');
+            const usernameError = document.getElementById('username-error');
+            const emailError = document.getElementById('email-error');
+            const passwordError = document.getElementById('password-error');
+            
+            // Check username availability
+            registerUsername.addEventListener('blur', function() {
+               const username = registerUsername.value.trim();
+               if (username && users[username]) {
+                  registerUsername.classList.add('invalid');
+                  usernameError.textContent = 'Username already exists';
+               } else {
+                  registerUsername.classList.remove('invalid');
+                  usernameError.textContent = '';
+               }
+            });
+            
+            // Validate password
+            registerPassword.addEventListener('input', function() {
+               const password = registerPassword.value;
+               const hasLetter = /[a-zA-Z]/.test(password);
+               const hasNumber = /[0-9]/.test(password);
+               const isLongEnough = password.length >= 8;
+               
+               if (!isLongEnough || !hasLetter || !hasNumber) {
+                  registerPassword.classList.add('invalid');
+                  passwordError.textContent = 'Password must be at least 8 characters with at least one letter and one number';
+               } else {
+                  registerPassword.classList.remove('invalid');
+                  passwordError.textContent = '';
+               }
+            });
+            
             // Register form submit handler
             registerForm.addEventListener('submit', function(e) {
                e.preventDefault();
-               const username = document.getElementById('register-username').value;
-               const password = document.getElementById('register-password').value;
+               const username = registerUsername.value.trim();
+               const email = registerEmail.value.trim();
+               const password = registerPassword.value;
                
+               // Validate username
                if (users[username]) {
-                  alert('Username already exists');
+                  registerUsername.classList.add('invalid');
+                  usernameError.textContent = 'Username already exists';
+                  return;
+               }
+               
+               // Validate password
+               const hasLetter = /[a-zA-Z]/.test(password);
+               const hasNumber = /[0-9]/.test(password);
+               const isLongEnough = password.length >= 8;
+               
+               if (!isLongEnough || !hasLetter || !hasNumber) {
+                  registerPassword.classList.add('invalid');
+                  passwordError.textContent = 'Password must be at least 8 characters with at least one letter and one number';
                   return;
                }
                
                // Create new user
                users[username] = {
                   password: password,
+                  email: email,
                   balance: 100,
                   history: []
                };

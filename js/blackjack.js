@@ -11,12 +11,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const dealerScoreEl = document.getElementById('dealer-score');
     const betInput = document.getElementById('bet-amount');
     const betButton = document.getElementById('place-bet-button');
+    const rebetButton = document.getElementById('rebet-button');
     const balanceEl = document.getElementById('player-balance');
     const loginButton = document.getElementById('login-button');
     const loginSection = document.getElementById('login-section');
     const gameSection = document.getElementById('game-section');
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
+    
+    // Form validation elements
+    const registerUsername = registerForm ? document.getElementById('register-username') : null;
+    const registerEmail = registerForm ? document.getElementById('register-email') : null;
+    const registerPassword = registerForm ? document.getElementById('register-password') : null;
+    const usernameError = registerForm ? document.getElementById('username-error') : null;
+    const emailError = registerForm ? document.getElementById('email-error') : null;
+    const passwordError = registerForm ? document.getElementById('password-error') : null;
     
     // Game state
     let deck = [];
@@ -26,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let dealerScore = 0;
     let gameInProgress = false;
     let currentBet = 0;
+    let lastBet = 0;
     let playerBalance = 100;
     let gameHistory = [];
     let currentUser = null;
@@ -48,6 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
         hitButton.addEventListener('click', playerHit);
         standButton.addEventListener('click', playerStand);
         betButton.addEventListener('click', placeBet);
+        rebetButton.addEventListener('click', reBet);
         
         // Setup login system
         if (loginButton) {
@@ -60,6 +71,37 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (registerForm) {
             registerForm.addEventListener('submit', handleRegister);
+            
+            // Add validation event listeners
+            if (registerUsername) {
+                registerUsername.addEventListener('blur', function() {
+                    const username = registerUsername.value.trim();
+                    if (username && users[username]) {
+                        registerUsername.classList.add('invalid');
+                        usernameError.textContent = 'Username already exists';
+                    } else {
+                        registerUsername.classList.remove('invalid');
+                        usernameError.textContent = '';
+                    }
+                });
+            }
+            
+            if (registerPassword) {
+                registerPassword.addEventListener('input', function() {
+                    const password = registerPassword.value;
+                    const hasLetter = /[a-zA-Z]/.test(password);
+                    const hasNumber = /[0-9]/.test(password);
+                    const isLongEnough = password.length >= 8;
+                    
+                    if (!isLongEnough || !hasLetter || !hasNumber) {
+                        registerPassword.classList.add('invalid');
+                        passwordError.textContent = 'Password must be at least 8 characters with at least one letter and one number';
+                    } else {
+                        registerPassword.classList.remove('invalid');
+                        passwordError.textContent = '';
+                    }
+                });
+            }
         }
         
         // Check if user is already logged in (from localStorage)
@@ -73,14 +115,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateBalance();
                 showGameSection();
                 
-                // Show welcome back message
+                // Show welcome back message and hide login button
                 messageEl.textContent = `Welcome back, ${currentUser}!`;
+                if (loginButton) {
+                    loginButton.textContent = 'Logout';
+                }
             }
         }
     }
     
     // User login and registration functions
     function toggleLoginSection() {
+        if (currentUser) {
+            // Log out
+            localStorage.removeItem('currentBlackjackUser');
+            currentUser = null;
+            playerBalance = 100; // Reset balance
+            gameHistory = [];
+            updateBalance();
+            messageEl.textContent = 'You have been logged out.';
+            
+            // Update login button
+            if (loginButton) {
+                loginButton.textContent = 'Login/Register';
+            }
+            
+            return;
+        }
+        
         if (loginSection.style.display === 'none') {
             loginSection.style.display = 'block';
             gameSection.style.display = 'none';
@@ -117,6 +179,11 @@ document.addEventListener('DOMContentLoaded', function() {
             updateBalance();
             showGameSection();
             messageEl.textContent = `Welcome back, ${username}!`;
+            
+            // Update login button
+            if (loginButton) {
+                loginButton.textContent = 'Logout';
+            }
         } else {
             alert('Invalid username or password');
         }
@@ -124,17 +191,32 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function handleRegister(e) {
         e.preventDefault();
-        const username = document.getElementById('register-username').value;
-        const password = document.getElementById('register-password').value;
+        const username = registerUsername.value.trim();
+        const email = registerEmail.value.trim();
+        const password = registerPassword.value;
         
+        // Validate username
         if (users[username]) {
-            alert('Username already exists');
+            registerUsername.classList.add('invalid');
+            usernameError.textContent = 'Username already exists';
+            return;
+        }
+        
+        // Validate password
+        const hasLetter = /[a-zA-Z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        const isLongEnough = password.length >= 8;
+        
+        if (!isLongEnough || !hasLetter || !hasNumber) {
+            registerPassword.classList.add('invalid');
+            passwordError.textContent = 'Password must be at least 8 characters with at least one letter and one number';
             return;
         }
         
         // Create new user
         users[username] = {
             password: password,
+            email: email,
             balance: 100,
             history: []
         };
@@ -153,6 +235,11 @@ document.addEventListener('DOMContentLoaded', function() {
         updateBalance();
         showGameSection();
         messageEl.textContent = `Welcome, ${username}!`;
+        
+        // Update login button
+        if (loginButton) {
+            loginButton.textContent = 'Logout';
+        }
     }
     
     function saveUserData() {
@@ -205,13 +292,39 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         currentBet = betAmount;
+        lastBet = betAmount; // Store the bet for re-bet feature
         playerBalance -= betAmount;
         updateBalance();
         
         betInput.disabled = true;
         betButton.disabled = true;
+        rebetButton.disabled = true;
         dealButton.disabled = false;
         messageEl.textContent = `Bet placed: $${betAmount}`;
+    }
+    
+    // Re-bet function
+    function reBet() {
+        // Check if the player has enough balance for the last bet
+        if (lastBet > playerBalance) {
+            messageEl.textContent = 'You don\'t have enough money for the previous bet';
+            return;
+        }
+        
+        if (playerBalance - lastBet < 10 && playerBalance > 10) {
+            messageEl.textContent = 'You must keep at least $10 in your balance';
+            return;
+        }
+        
+        currentBet = lastBet;
+        playerBalance -= lastBet;
+        updateBalance();
+        
+        betInput.disabled = true;
+        betButton.disabled = true;
+        rebetButton.disabled = true;
+        dealButton.disabled = false;
+        messageEl.textContent = `Bet placed: $${lastBet}`;
     }
     
     // Update balance display
@@ -223,6 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (playerBalance < 10) {
                 betInput.disabled = true;
                 betButton.disabled = true;
+                rebetButton.disabled = true;
                 messageEl.textContent = 'Game over! You don\'t have enough money.';
                 
                 // Add option to reset balance
@@ -271,6 +385,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (betButton) {
             betButton.disabled = false;
+        }
+        
+        // Enable rebet button if there's a previous bet
+        if (rebetButton) {
+            rebetButton.disabled = lastBet === 0 || lastBet > playerBalance;
         }
     }
     
@@ -514,6 +633,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (betButton) {
             betButton.disabled = false;
+        }
+        
+        // Enable re-bet button if there's a previous bet and player has enough money
+        if (rebetButton) {
+            rebetButton.disabled = lastBet === 0 || lastBet > playerBalance;
         }
         
         // Enable deal button after a short delay if player has enough money
