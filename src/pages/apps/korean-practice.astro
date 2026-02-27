@@ -1,157 +1,264 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-
-const seedWords = [
-  { ko: '?????', en: 'hello' },
-  { ko: '?????', en: 'thank you' },
-  { ko: '?????', en: 'sorry' },
-  { ko: '?', en: 'water' },
-  { ko: '?', en: 'rice' },
-  { ko: '??', en: 'school' },
-  { ko: '??', en: 'friend' },
-  { ko: '??', en: 'love' },
-  { ko: '??', en: 'time' },
-  { ko: '??', en: 'today' },
-  { ko: '??', en: 'tomorrow' },
-  { ko: '??', en: 'yesterday' },
-  { ko: '?', en: 'book' },
-  { ko: '??', en: 'music' },
-  { ko: '??', en: 'exercise' },
-  { ko: '??', en: 'study' },
-  { ko: '??', en: 'question' },
-  { ko: '?', en: 'answer' },
-  { ko: '???', en: 'good' },
-  { ko: '????', en: 'it is okay' }
-];
+import sentences from '../../data/korean-sentences.json';
+import words from '../../data/korean-words.json';
 ---
 
 <Layout
-  title="Korean Practice Tool | SqualieC"
-  description="Practice Korean vocabulary online with randomized prompts and instant feedback."
+  title="Korean Reading Practice | SqualieC"
+  description="Read Korean first, reveal translation, and play browser-based Korean pronunciation on the live site."
 >
   <section class="hero hero-surface">
     <p class="eyebrow">Online Tool</p>
-    <h1>Korean Practice</h1>
-    <p class="lead">Quick browser-based vocab drilling. No account, no backend, instant repetition loop.</p>
+    <h1>Korean Reading Practice</h1>
+    <p class="lead">
+      This is now fully site-hosted and always available. It uses your real sentence and vocabulary sets directly in
+      the browser, with Korean speech playback through the browser voice engine.
+    </p>
   </section>
 
-  <section class="card section-title">
+  <section class="card section-title practice-shell">
+    <div class="control-row">
+      <label for="modeSelect">Mode</label>
+      <select id="modeSelect" aria-label="Practice mode">
+        <option value="sentences">Everyday Sentences</option>
+        <option value="words">Beginner Words</option>
+      </select>
+
+      <label for="voiceSelect">Voice</label>
+      <select id="voiceSelect" aria-label="Voice selection"></select>
+
+      <label for="rateRange">Rate</label>
+      <input id="rateRange" type="range" min="0.7" max="1.2" step="0.05" value="0.95" />
+    </div>
+
+    <section id="koreanText" class="sentence" aria-live="polite">Loading...</section>
+    <section id="englishText" class="translation hidden" aria-live="polite"></section>
+
     <div class="btn-row">
-      <button id="mode-ko-en" class="btn btn-primary" type="button">Korean -> English</button>
-      <button id="mode-en-ko" class="btn btn-secondary" type="button">English -> Korean</button>
-      <button id="skip" class="btn btn-secondary" type="button">Skip</button>
+      <button id="newBtn" class="btn btn-primary" type="button">New Item</button>
+      <button id="revealPlayBtn" class="btn btn-secondary" type="button">Reveal + Play</button>
+      <button id="playBtn" class="btn btn-secondary" type="button">Play Again</button>
     </div>
 
-    <div class="section-title">
-      <p class="eyebrow">Prompt</p>
-      <h2 id="prompt-text">...</h2>
-    </div>
+    <div id="status" class="status"></div>
 
-    <div class="meta-row">
-      <span class="badge">Score: <strong id="score">0</strong></span>
-      <span class="badge">Streak: <strong id="streak">0</strong></span>
-      <span class="badge">Mode: <strong id="mode-label">Korean -> English</strong></span>
-    </div>
-
-    <div class="section-title">
-      <label for="answer-input" class="eyebrow">Your answer</label>
-      <input id="answer-input" type="text" class="k-input" autocomplete="off" />
-      <div class="btn-row">
-        <button id="check" class="btn btn-primary" type="button">Check</button>
-      </div>
-      <p id="feedback" class="lead" aria-live="polite"></p>
-    </div>
+    <p class="hint">
+      If no Korean voice appears, install a Korean language voice in Windows/browser settings and refresh.
+    </p>
   </section>
 </Layout>
 
-<script define:vars={{ seedWords }}>
-  const words = seedWords;
-  let mode = "ko-en";
+<script define:vars={{ sentences, words }}>
+  const koreanTextEl = document.getElementById("koreanText");
+  const englishTextEl = document.getElementById("englishText");
+  const statusEl = document.getElementById("status");
+  const modeSelect = document.getElementById("modeSelect");
+  const voiceSelect = document.getElementById("voiceSelect");
+  const rateRange = document.getElementById("rateRange");
+  const newBtn = document.getElementById("newBtn");
+  const revealPlayBtn = document.getElementById("revealPlayBtn");
+  const playBtn = document.getElementById("playBtn");
+
+  const pools = {
+    sentences,
+    words
+  };
+
   let current = null;
-  let score = 0;
-  let streak = 0;
 
-  const promptText = document.getElementById("prompt-text");
-  const answerInput = document.getElementById("answer-input");
-  const feedback = document.getElementById("feedback");
-  const scoreEl = document.getElementById("score");
-  const streakEl = document.getElementById("streak");
-  const modeLabel = document.getElementById("mode-label");
-
-  function normalize(value) {
-    return value.toLowerCase().trim().replace(/\s+/g, " ");
+  function setStatus(message) {
+    statusEl.textContent = message || "";
   }
 
-  function pickWord() {
-    const idx = Math.floor(Math.random() * words.length);
-    current = words[idx];
-    promptText.textContent = mode === "ko-en" ? current.ko : current.en;
-    feedback.textContent = "";
-    answerInput.value = "";
-    answerInput.focus();
+  function randomItem(pool) {
+    const index = Math.floor(Math.random() * pool.length);
+    return pool[index];
   }
 
-  function checkAnswer() {
+  function renderCurrent(item) {
+    current = item;
+    koreanTextEl.textContent = item.korean;
+    englishTextEl.textContent = item.english;
+    englishTextEl.classList.add("hidden");
+    setStatus("");
+  }
+
+  function loadNewItem() {
+    const mode = modeSelect.value;
+    const pool = pools[mode] || pools.sentences;
+    renderCurrent(randomItem(pool));
+  }
+
+  function revealTranslation() {
     if (!current) return;
+    englishTextEl.classList.remove("hidden");
+  }
 
-    const expected = mode === "ko-en" ? current.en : current.ko;
-    const actual = normalize(answerInput.value);
+  function getKoreanVoices() {
+    if (!("speechSynthesis" in window)) {
+      return [];
+    }
 
-    if (!actual) {
-      feedback.textContent = "Type an answer first.";
+    return window.speechSynthesis
+      .getVoices()
+      .filter((voice) => voice.lang && voice.lang.toLowerCase().startsWith("ko"));
+  }
+
+  function populateVoiceSelect() {
+    const voices = getKoreanVoices();
+    const previousValue = voiceSelect.value;
+
+    voiceSelect.innerHTML = "";
+
+    if (!voices.length) {
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = "No Korean voice found";
+      voiceSelect.appendChild(option);
+      setStatus("Korean browser voice not found.");
       return;
     }
 
-    if (normalize(expected) === actual) {
-      score += 1;
-      streak += 1;
-      feedback.textContent = "Correct.";
-    } else {
-      streak = 0;
-      feedback.textContent = `Not quite. Correct answer: ${expected}`;
+    voices.forEach((voice, index) => {
+      const option = document.createElement("option");
+      option.value = voice.voiceURI;
+      option.textContent = `${voice.name} (${voice.lang})`;
+      if (previousValue && previousValue === voice.voiceURI) {
+        option.selected = true;
+      } else if (!previousValue && index === 0) {
+        option.selected = true;
+      }
+      voiceSelect.appendChild(option);
+    });
+  }
+
+  function speakKorean(text) {
+    if (!("speechSynthesis" in window)) {
+      setStatus("Speech synthesis is not supported in this browser.");
+      return;
     }
 
-    scoreEl.textContent = String(score);
-    streakEl.textContent = String(streak);
+    if (!text) {
+      return;
+    }
 
-    setTimeout(pickWord, 550);
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "ko-KR";
+    utterance.rate = Number(rateRange.value || 0.95);
+
+    const voices = getKoreanVoices();
+    const selected = voices.find((voice) => voice.voiceURI === voiceSelect.value);
+    if (selected) {
+      utterance.voice = selected;
+    }
+
+    utterance.onstart = () => setStatus("Playing audio...");
+    utterance.onend = () => setStatus("");
+    utterance.onerror = () => setStatus("Could not play audio.");
+
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
   }
 
-  function setMode(nextMode) {
-    mode = nextMode;
-    modeLabel.textContent = mode === "ko-en" ? "Korean -> English" : "English -> Korean";
-    pickWord();
-  }
+  newBtn.addEventListener("click", loadNewItem);
+  modeSelect.addEventListener("change", loadNewItem);
 
-  document.getElementById("check").addEventListener("click", checkAnswer);
-  document.getElementById("skip").addEventListener("click", pickWord);
-  document.getElementById("mode-ko-en").addEventListener("click", () => setMode("ko-en"));
-  document.getElementById("mode-en-ko").addEventListener("click", () => setMode("en-ko"));
-
-  answerInput.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      checkAnswer();
+  revealPlayBtn.addEventListener("click", () => {
+    revealTranslation();
+    if (current) {
+      speakKorean(current.korean);
     }
   });
 
-  setMode("ko-en");
+  playBtn.addEventListener("click", () => {
+    if (current) {
+      speakKorean(current.korean);
+    }
+  });
+
+  if ("speechSynthesis" in window) {
+    populateVoiceSelect();
+    window.speechSynthesis.onvoiceschanged = populateVoiceSelect;
+  } else {
+    populateVoiceSelect();
+  }
+
+  loadNewItem();
 </script>
 
 <style>
-  .k-input {
-    width: min(520px, 100%);
-    background: color-mix(in srgb, var(--bg-soft), transparent 5%);
-    border: 1px solid color-mix(in srgb, var(--muted), transparent 55%);
-    color: var(--text);
-    border-radius: 10px;
-    padding: 0.65rem 0.75rem;
-    font-size: 1rem;
-    margin-top: 0.4rem;
+  .practice-shell {
+    display: grid;
+    gap: 0.9rem;
   }
 
-  .k-input:focus {
-    outline: 2px solid color-mix(in srgb, var(--ring), transparent 30%);
-    outline-offset: 2px;
+  .control-row {
+    display: grid;
+    grid-template-columns: auto minmax(180px, 1fr) auto minmax(180px, 1fr) auto 140px;
+    gap: 0.55rem;
+    align-items: center;
+  }
+
+  .control-row label {
+    color: var(--muted);
+    font-size: 0.84rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .control-row select,
+  .control-row input[type="range"] {
+    width: 100%;
+    border: 1px solid color-mix(in srgb, var(--muted), transparent 55%);
+    background: color-mix(in srgb, var(--bg-soft), transparent 10%);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 0.48rem 0.58rem;
+  }
+
+  .sentence {
+    min-height: 105px;
+    background: color-mix(in srgb, var(--bg-soft), transparent 10%);
+    border: 1px solid color-mix(in srgb, var(--muted), transparent 65%);
+    border-radius: 14px;
+    padding: 0.95rem;
+    font-size: clamp(1.25rem, 1.8vw + 0.65rem, 1.95rem);
+    line-height: 1.45;
+    display: flex;
+    align-items: center;
+  }
+
+  .translation {
+    padding: 0.8rem 0.95rem;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--accent), transparent 88%);
+    border: 1px solid color-mix(in srgb, var(--accent), transparent 72%);
+    min-height: 44px;
+  }
+
+  .translation.hidden {
+    visibility: hidden;
+  }
+
+  .status {
+    color: var(--muted);
+    min-height: 22px;
+  }
+
+  .hint {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.86rem;
+  }
+
+  @media (max-width: 960px) {
+    .control-row {
+      grid-template-columns: 1fr;
+    }
+
+    .control-row label {
+      margin-top: 0.2rem;
+    }
   }
 </style>
