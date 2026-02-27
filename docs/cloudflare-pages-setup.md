@@ -2,7 +2,7 @@
 
 This repo is configured for a static Astro build with Pagefind indexing.
 
-## Build Settings
+## Recommended: Cloudflare Pages (Static Site)
 
 Use these values in Cloudflare Pages:
 
@@ -12,7 +12,7 @@ Use these values in Cloudflare Pages:
 - Root directory: `/` (repo root)
 - Node.js version: `22`
 
-## Git Integration Steps
+### Git Integration Steps
 
 1. In Cloudflare dashboard, go to `Workers & Pages` -> `Create` -> `Pages`.
 2. Connect GitHub and choose repository `SqualieC/SqualieC.github.io`.
@@ -20,7 +20,7 @@ Use these values in Cloudflare Pages:
 4. Enter the Build Settings above and save.
 5. Trigger first deploy.
 
-## Custom Domain
+### Custom Domain
 
 1. Open the created Pages project.
 2. Go to `Custom domains` -> `Set up a custom domain`.
@@ -32,10 +32,14 @@ Use these values in Cloudflare Pages:
 - LAN dev: `npm run dev:host`
 - Production-like preview with search index: `npm run preview:local`
 
-## Optional CLI Deploy
+## If You See `npx wrangler versions upload` in Build Logs
 
-You can also deploy the built output manually:
+That means you are deploying as a **Worker**, not a Pages static build.
 
-```powershell
-npx wrangler pages deploy dist --project-name mywebsite
-```
+Use one of these fixes:
+
+1. Preferred: create a **Pages** project and use the settings above (no custom deploy command).
+2. If staying on Workers Builds:
+   - Build command: `npm run build:search`
+   - Deploy command: `npx wrangler versions upload`
+   - Keep `wrangler.toml` with `[assets] directory = "./dist"` (already configured in this repo).
