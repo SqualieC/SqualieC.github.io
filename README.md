@@ -10,9 +10,21 @@ Astro + TypeScript portfolio/catalog site.
 - MDX
 - Astro content collections
 - Pagefind
+- Cloudflare Pages
 
 ## Commands
 
-- `npm run dev`
-- `npm run build`
-- `npm run preview`
+- `npm run dev` (local development)
+- `npm run dev:host` (LAN-accessible local development)
+- `npm run build` (Astro static build)
+- `npm run search:index` (generate Pagefind index)
+- `npm run build:search` (build + search index; use for Cloudflare)
+- `npm run preview:local` (production-like localhost preview)
+
+## Deployment
+
+Cloudflare Pages configuration is documented in [docs/cloudflare-pages-setup.md](docs/cloudflare-pages-setup.md).
+
+## Planning
+
+Current backlog is in [TODO.md](TODO.md).

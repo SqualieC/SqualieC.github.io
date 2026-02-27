@@ -8,7 +8,9 @@
     "preview": "astro preview",
     "astro": "astro",
     "search:index": "pagefind --site dist",
-    "build:search": "astro build && pagefind --site dist"
+    "build:search": "astro build && pagefind --site dist",
+    "dev:host": "astro dev --host",
+    "preview:local": "npm run build && npm run search:index && npm run preview"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.13",
