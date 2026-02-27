@@ -1,49 +1,44 @@
-# Cloudflare Pages Setup
+# Cloudflare Deployment Setup
 
-This repo is configured for a static Astro build with Pagefind indexing.
+This repo builds a static Astro site and then uploads the built `dist` directory as Cloudflare static assets.
 
-## Recommended: Cloudflare Pages (Static Site)
+## Build + Deploy Values
 
-Use these values in Cloudflare Pages:
+Use these exact values:
 
-- Framework preset: `Astro`
+- Production branch: `main`
+- Root directory: `/`
 - Build command: `npm run build:search`
-- Build output directory: `dist`
-- Root directory: `/` (repo root)
+- Deploy command: `npm run cf:deploy`
 - Node.js version: `22`
 
-Optional environment variable:
+`npm run cf:deploy` runs:
 
-- `PUBLIC_CF_ANALYTICS_TOKEN` -> enables Cloudflare Web Analytics beacon script in layout.
+- `npx wrangler deploy --config wrangler.jsonc`
 
-### Git Integration Steps
+## Required Files In Repo Root
 
-1. In Cloudflare dashboard, go to `Workers & Pages` -> `Create` -> `Pages`.
-2. Connect GitHub and choose repository `SqualieC/SqualieC.github.io`.
-3. Set production branch to `main`.
-4. Enter the Build Settings above and save.
-5. Trigger first deploy.
+- `wrangler.jsonc` with:
+  - `name`
+  - `compatibility_date`
+  - `assets.directory = "./dist"`
 
-### Custom Domain
+## Local Verification Before Cloudflare
 
-1. Open the created Pages project.
-2. Go to `Custom domains` -> `Set up a custom domain`.
-3. Add your domain/subdomain and complete DNS verification.
+- Dev server: `npm run dev`
+- LAN dev server: `npm run dev:host`
+- Production build + search index: `npm run build:search`
 
-## Local Verification Before Deploy
+## Common Failures
 
-- Fast dev: `npm run dev`
-- LAN dev: `npm run dev:host`
-- Production-like preview with search index: `npm run preview:local`
+- `Missing entry-point to Worker script or to assets directory`
+  - Cause: using `wrangler versions upload` without valid assets config.
+  - Fix: use `npm run cf:deploy` (already points to `wrangler deploy --config wrangler.jsonc`).
 
-## If You See `npx wrangler versions upload` in Build Logs
+- `ENOENT ... package.json`
+  - Cause: wrong root directory in Cloudflare.
+  - Fix: set Root directory to `/`.
 
-That means you are deploying as a **Worker**, not a Pages static build.
-
-Use one of these fixes:
-
-1. Preferred: create a **Pages** project and use the settings above (no custom deploy command).
-2. If staying on Workers Builds:
-   - Build command: `npm run build:search`
-   - Deploy command: `npx wrangler versions upload`
-   - Keep `wrangler.toml` with `[assets] directory = "./dist"` (already configured in this repo).
+- `invalid request body`
+  - Cause: stale/incorrect Worker deploy payload.
+  - Fix: keep only `wrangler.jsonc` in repo root and deploy with `npm run cf:deploy`.
