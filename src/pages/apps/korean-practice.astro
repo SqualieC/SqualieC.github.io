@@ -6,14 +6,14 @@ import words from '../../data/korean-words.json';
 
 <Layout
   title="Korean Reading Practice | SqualieC"
-  description="Read Korean first, reveal translation, and play browser-based Korean pronunciation on the live site."
+  description="Read Korean first, reveal translation, and play Microsoft Edge SunHiNeural Korean audio on the live site."
 >
   <section class="hero hero-surface">
     <p class="eyebrow">Online Tool</p>
     <h1>Korean Reading Practice</h1>
     <p class="lead">
       This is now fully site-hosted and always available. It uses your real sentence and vocabulary sets directly in
-      the browser, with Korean speech playback through the browser voice engine.
+      the browser, with pre-rendered Microsoft Edge neural Korean TTS (SunHi) for playback quality.
     </p>
   </section>
 
@@ -25,8 +25,8 @@ import words from '../../data/korean-words.json';
         <option value="words">Beginner Words</option>
       </select>
 
-      <label for="voiceSelect">Voice</label>
-      <select id="voiceSelect" aria-label="Voice selection"></select>
+      <label for="voiceSelect">Fallback Voice</label>
+      <select id="voiceSelect" aria-label="Fallback voice selection"></select>
 
       <label for="rateRange">Rate</label>
       <input id="rateRange" type="range" min="0.7" max="1.2" step="0.05" value="0.95" />
@@ -44,7 +44,7 @@ import words from '../../data/korean-words.json';
     <div id="status" class="status"></div>
 
     <p class="hint">
-      If no Korean voice appears, install a Korean language voice in Windows/browser settings and refresh.
+      Playback uses pre-rendered <code>ko-KR-SunHiNeural</code> audio first. Browser voices are used only as fallback.
     </p>
   </section>
 </Layout>
@@ -65,15 +65,24 @@ import words from '../../data/korean-words.json';
     words
   };
 
+  const PREFETCHED_AUDIO_BASE = "/audio/korean";
+
   let current = null;
+  let activeAudio = null;
 
   function setStatus(message) {
     statusEl.textContent = message || "";
   }
 
-  function randomItem(pool) {
+  function randomItem(mode) {
+    const selectedMode = mode === "words" ? "words" : "sentences";
+    const pool = pools[selectedMode] || pools.sentences;
     const index = Math.floor(Math.random() * pool.length);
-    return pool[index];
+    return {
+      ...pool[index],
+      _index: index,
+      _mode: selectedMode
+    };
   }
 
   function renderCurrent(item) {
@@ -84,10 +93,21 @@ import words from '../../data/korean-words.json';
     setStatus("");
   }
 
+  function stopPlayback() {
+    if (activeAudio) {
+      activeAudio.pause();
+      activeAudio.currentTime = 0;
+      activeAudio = null;
+    }
+
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+  }
+
   function loadNewItem() {
-    const mode = modeSelect.value;
-    const pool = pools[mode] || pools.sentences;
-    renderCurrent(randomItem(pool));
+    stopPlayback();
+    renderCurrent(randomItem(modeSelect.value));
   }
 
   function revealTranslation() {
@@ -100,9 +120,24 @@ import words from '../../data/korean-words.json';
       return [];
     }
 
-    return window.speechSynthesis
+    const voices = window.speechSynthesis
       .getVoices()
       .filter((voice) => voice.lang && voice.lang.toLowerCase().startsWith("ko"));
+
+    return voices.sort((a, b) => {
+      const rank = (voice) => {
+        const name = `${voice.name} ${voice.voiceURI}`.toLowerCase();
+        if (name.includes("sunhi")) return 0;
+        if (name.includes("online") && name.includes("korean")) return 1;
+        if (name.includes("neural") && name.includes("korean")) return 2;
+        if (name.includes("korean")) return 3;
+        return 10;
+      };
+
+      const diff = rank(a) - rank(b);
+      if (diff !== 0) return diff;
+      return a.name.localeCompare(b.name);
+    });
   }
 
   function populateVoiceSelect() {
@@ -114,9 +149,8 @@ import words from '../../data/korean-words.json';
     if (!voices.length) {
       const option = document.createElement("option");
       option.value = "";
-      option.textContent = "No Korean voice found";
+      option.textContent = "No Korean fallback voice found";
       voiceSelect.appendChild(option);
-      setStatus("Korean browser voice not found.");
       return;
     }
 
@@ -133,7 +167,51 @@ import words from '../../data/korean-words.json';
     });
   }
 
-  function speakKorean(text) {
+  function getPrefetchedAudioUrl(item) {
+    if (!item || item._index === undefined || item._mode === undefined) {
+      return null;
+    }
+
+    const mode = item._mode === "words" ? "words" : "sentences";
+    return `${PREFETCHED_AUDIO_BASE}/${mode}/${item._index}.mp3`;
+  }
+
+  async function playPreRenderedAudio(item) {
+    const url = getPrefetchedAudioUrl(item);
+    if (!url) {
+      return false;
+    }
+
+    try {
+      const audio = new Audio(url);
+      audio.playbackRate = Number(rateRange.value || 0.95);
+      activeAudio = audio;
+
+      audio.onended = () => {
+        if (activeAudio === audio) {
+          activeAudio = null;
+        }
+        setStatus("");
+      };
+
+      audio.onerror = () => {
+        if (activeAudio === audio) {
+          activeAudio = null;
+        }
+      };
+
+      setStatus("Playing SunHi neural audio...");
+      await audio.play();
+      return true;
+    } catch {
+      if (activeAudio) {
+        activeAudio = null;
+      }
+      return false;
+    }
+  }
+
+  function speakBrowserVoice(text) {
     if (!("speechSynthesis" in window)) {
       setStatus("Speech synthesis is not supported in this browser.");
       return;
@@ -153,7 +231,7 @@ import words from '../../data/korean-words.json';
       utterance.voice = selected;
     }
 
-    utterance.onstart = () => setStatus("Playing audio...");
+    utterance.onstart = () => setStatus("Using fallback browser voice...");
     utterance.onend = () => setStatus("");
     utterance.onerror = () => setStatus("Could not play audio.");
 
@@ -161,20 +239,31 @@ import words from '../../data/korean-words.json';
     window.speechSynthesis.speak(utterance);
   }
 
+  async function speakKorean(item) {
+    if (!item || !item.korean) {
+      return;
+    }
+
+    stopPlayback();
+
+    const playedPreRendered = await playPreRenderedAudio(item);
+    if (playedPreRendered) {
+      return;
+    }
+
+    speakBrowserVoice(item.korean);
+  }
+
   newBtn.addEventListener("click", loadNewItem);
   modeSelect.addEventListener("change", loadNewItem);
 
-  revealPlayBtn.addEventListener("click", () => {
+  revealPlayBtn.addEventListener("click", async () => {
     revealTranslation();
-    if (current) {
-      speakKorean(current.korean);
-    }
+    await speakKorean(current);
   });
 
-  playBtn.addEventListener("click", () => {
-    if (current) {
-      speakKorean(current.korean);
-    }
+  playBtn.addEventListener("click", async () => {
+    await speakKorean(current);
   });
 
   if ("speechSynthesis" in window) {

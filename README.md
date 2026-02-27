@@ -37,3 +37,8 @@ Current backlog is in [TODO.md](TODO.md).
 
 See [docs/bassprogram-release.md](docs/bassprogram-release.md).
 
+## Korean TTS Asset Refresh
+
+Regenerate static Korean audio (Microsoft Edge `ko-KR-SunHiNeural`) with:
+
+- `python scripts/generate_korean_audio.py`
