@@ -12,6 +12,10 @@ Use these values in Cloudflare Pages:
 - Root directory: `/` (repo root)
 - Node.js version: `22`
 
+Optional environment variable:
+
+- `PUBLIC_CF_ANALYTICS_TOKEN` -> enables Cloudflare Web Analytics beacon script in layout.
+
 ### Git Integration Steps
 
 1. In Cloudflare dashboard, go to `Workers & Pages` -> `Create` -> `Pages`.

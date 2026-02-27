@@ -28,3 +28,7 @@ Cloudflare Pages configuration is documented in [docs/cloudflare-pages-setup.md]
 ## Planning
 
 Current backlog is in [TODO.md](TODO.md).
+
+## Optional Environment Variables
+
+- `PUBLIC_CF_ANALYTICS_TOKEN` for Cloudflare Web Analytics beacon injection.

@@ -1,5 +1,11 @@
 import { defineCollection, z } from 'astro:content';
 
+const linkSchema = z
+  .string()
+  .refine((value) => value.startsWith('/') || /^https?:\/\//i.test(value), {
+    message: 'Expected an absolute URL (https://...) or a root-relative path (/...)'
+  });
+
 const projects = defineCollection({
   type: 'content',
   schema: z.object({
@@ -9,8 +15,8 @@ const projects = defineCollection({
     status: z.enum(['planning', 'active', 'paused', 'archived']),
     screenshots: z.array(z.string()).default([]),
     repoUrl: z.string().url().optional(),
-    demoUrl: z.string().url().optional(),
-    downloadUrl: z.string().url().optional(),
+    demoUrl: linkSchema.optional(),
+    downloadUrl: linkSchema.optional(),
     priceModel: z.enum(['free', 'paid', 'donation', 'freemium']),
     platform: z.array(z.enum(['web', 'windows', 'mac', 'linux', 'android', 'ios'])),
     updatedAt: z.coerce.date(),
@@ -41,4 +47,3 @@ const tools = defineCollection({
 });
 
 export const collections = { projects, blog, tools };
-

@@ -2,25 +2,31 @@
 import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 
-const projects = (await getCollection('projects'))
-  .sort((a, b) => b.data.updatedAt.valueOf() - a.data.updatedAt.valueOf())
-  .slice(0, 6);
-
-const featured = projects.filter((project) => project.data.featured).slice(0, 3);
+const projects = (await getCollection('projects')).sort(
+  (a, b) => b.data.updatedAt.valueOf() - a.data.updatedAt.valueOf()
+);
+const featured = projects.filter((project) => project.data.featured).slice(0, 4);
+const latestProject = projects[0];
 ---
 
 <Layout
   title="SqualieC | Maker Projects"
-  description="A searchable, fast project catalog with build logs and tool docs."
+  description="A searchable, fast project catalog with downloadable builds and practical devlogs."
 >
-  <section class="hero">
-    <p class="eyebrow">Portfolio Overhaul</p>
-    <h1>Project library, devlogs, and tools in one static site.</h1>
+  <section class="hero hero-surface">
+    <p class="eyebrow">Portfolio</p>
+    <h1>Project library, downloadable builds, and devlogs.</h1>
     <p class="lead">
-      This rebuild uses Astro content collections as the source of truth for projects, so every page can stay
-      fast while still being structured and type-safe.
+      Static-first Astro architecture with typed content collections keeps the site fast while making every project
+      page consistent and easy to maintain.
     </p>
-    <a href="/projects" class="cta">Browse all projects</a>
+    <div class="btn-row">
+      <a href="/projects" class="btn btn-primary">Browse Projects</a>
+      <a href="/projects/bassprogram" class="btn btn-secondary">Download BassProgram</a>
+    </div>
+    {latestProject && (
+      <p class="lead">Latest update: <strong>{latestProject.data.title}</strong> ({latestProject.data.updatedAt.toISOString().slice(0, 10)})</p>
+    )}
   </section>
 
   <section>
@@ -34,10 +40,16 @@ const featured = projects.filter((project) => project.data.featured).slice(0, 3)
             <span class="badge">{project.data.status}</span>
             <span class="badge">{project.data.priceModel}</span>
           </div>
-          <a class="cta" href={`/projects/${project.slug}`}>Open project</a>
+          <div class="btn-row">
+            {project.data.downloadUrl ? (
+              <a class="btn btn-primary" href={project.data.downloadUrl}>Download</a>
+            ) : (
+              <a class="btn btn-primary" href={`/projects/${project.slug}`}>Open Project</a>
+            )}
+            <a class="btn btn-secondary" href={`/projects/${project.slug}`}>Details</a>
+          </div>
         </article>
       ))}
     </div>
   </section>
 </Layout>
-

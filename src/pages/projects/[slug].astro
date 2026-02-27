@@ -13,10 +13,18 @@ export async function getStaticPaths() {
 
 const { project } = Astro.props;
 const { Content } = await render(project);
+
+const actionLinks = [
+  project.data.downloadUrl ? { href: project.data.downloadUrl, label: 'Download', variant: 'primary' } : null,
+  project.data.demoUrl ? { href: project.data.demoUrl, label: 'Live Demo', variant: 'secondary' } : null,
+  project.data.repoUrl ? { href: project.data.repoUrl, label: 'Repository', variant: 'secondary' } : null
+].filter(Boolean);
+
+const screenshot = project.data.screenshots[0] ?? '/og-default.svg';
 ---
 
-<Layout title={`${project.data.title} | SqualieC`} description={project.data.pitch}>
-  <article class="hero">
+<Layout title={`${project.data.title} | SqualieC`} description={project.data.pitch} image={screenshot}>
+  <article class="hero hero-surface">
     <p class="eyebrow">Project</p>
     <h1>{project.data.title}</h1>
     <p class="lead">{project.data.pitch}</p>
@@ -27,15 +35,38 @@ const { Content } = await render(project);
       <span class="badge">Updated {project.data.updatedAt.toISOString().slice(0, 10)}</span>
     </div>
 
-    <div class="meta-row">
-      {project.data.demoUrl && <a class="cta" href={project.data.demoUrl}>Live demo</a>}
-      {project.data.repoUrl && <a class="cta" href={project.data.repoUrl}>Repository</a>}
-      {project.data.downloadUrl && <a class="cta" href={project.data.downloadUrl}>Download</a>}
+    <div class="btn-row">
+      {actionLinks.map((action) => (
+        <a href={action.href} class={action.variant === 'primary' ? 'btn btn-primary' : 'btn btn-secondary'}>{action.label}</a>
+      ))}
     </div>
   </article>
 
-  <section class="prose card">
-    <Content />
+  <section class="detail-grid section-title">
+    <article class="prose card">
+      <Content />
+    </article>
+
+    <aside class="detail-side">
+      <h3>Quick facts</h3>
+      <dl class="kv-list">
+        <div>
+          <dt>Status</dt>
+          <dd>{project.data.status}</dd>
+        </div>
+        <div>
+          <dt>Pricing</dt>
+          <dd>{project.data.priceModel}</dd>
+        </div>
+        <div>
+          <dt>Platform</dt>
+          <dd>{project.data.platform.join(', ')}</dd>
+        </div>
+        <div>
+          <dt>Mic/Audio</dt>
+          <dd>{project.data.usesMicAudio ? 'Yes' : 'No'}</dd>
+        </div>
+      </dl>
+    </aside>
   </section>
 </Layout>
-
