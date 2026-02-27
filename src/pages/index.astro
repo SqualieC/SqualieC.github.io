@@ -1,0 +1,43 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+
+const projects = (await getCollection('projects'))
+  .sort((a, b) => b.data.updatedAt.valueOf() - a.data.updatedAt.valueOf())
+  .slice(0, 6);
+
+const featured = projects.filter((project) => project.data.featured).slice(0, 3);
+---
+
+<Layout
+  title="SqualieC | Maker Projects"
+  description="A searchable, fast project catalog with build logs and tool docs."
+>
+  <section class="hero">
+    <p class="eyebrow">Portfolio Overhaul</p>
+    <h1>Project library, devlogs, and tools in one static site.</h1>
+    <p class="lead">
+      This rebuild uses Astro content collections as the source of truth for projects, so every page can stay
+      fast while still being structured and type-safe.
+    </p>
+    <a href="/projects" class="cta">Browse all projects</a>
+  </section>
+
+  <section>
+    <h2 class="section-title">Featured Work</h2>
+    <div class="grid">
+      {featured.map((project) => (
+        <article class="card">
+          <h3>{project.data.title}</h3>
+          <p>{project.data.pitch}</p>
+          <div class="meta-row">
+            <span class="badge">{project.data.status}</span>
+            <span class="badge">{project.data.priceModel}</span>
+          </div>
+          <a class="cta" href={`/projects/${project.slug}`}>Open project</a>
+        </article>
+      ))}
+    </div>
+  </section>
+</Layout>
+

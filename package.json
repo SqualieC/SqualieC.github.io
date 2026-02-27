@@ -1,0 +1,20 @@
+{
+  "name": "mywebsite",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "search:index": "pagefind --site dist",
+    "build:search": "astro build && pagefind --site dist"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^4.3.13",
+    "@tailwindcss/vite": "^4.2.1",
+    "astro": "^5.17.1",
+    "pagefind": "^1.4.0",
+    "tailwindcss": "^4.2.1"
+  }
+}

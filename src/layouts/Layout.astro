@@ -1,0 +1,42 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'SqualieC | Projects',
+  description = 'Build logs, playable demos, and software projects by SqualieC.'
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" href="/favicon.ico" />
+    <title>{title}</title>
+  </head>
+  <body class="site-shell">
+    <header class="site-header">
+      <a href="/" class="logo">SqualieC</a>
+      <nav class="nav-links">
+        <a href="/projects">Projects</a>
+        <a href="/blog">Blog</a>
+        <a href="/tools">Tools</a>
+        <a href="/search">Search</a>
+      </nav>
+    </header>
+    <main class="site-main">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>Built with Astro + TypeScript + Tailwind + MDX.</p>
+    </footer>
+  </body>
+</html>
