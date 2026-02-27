@@ -15,7 +15,16 @@ const { project } = Astro.props;
 const { Content } = await render(project);
 
 const actionLinks = [
-  project.data.downloadUrl ? { href: project.data.downloadUrl, label: 'Download', variant: 'primary' } : null,
+  project.data.downloadUrl
+    ? { href: project.data.downloadUrl, label: project.data.downloadLabel ?? 'Download', variant: 'primary' }
+    : null,
+  project.data.secondaryDownloadUrl
+    ? {
+        href: project.data.secondaryDownloadUrl,
+        label: project.data.secondaryDownloadLabel ?? 'Download (Alt)',
+        variant: 'secondary'
+      }
+    : null,
   project.data.demoUrl ? { href: project.data.demoUrl, label: 'Live Demo', variant: 'secondary' } : null,
   project.data.repoUrl ? { href: project.data.repoUrl, label: 'Repository', variant: 'secondary' } : null
 ].filter(Boolean);

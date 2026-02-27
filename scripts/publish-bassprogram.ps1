@@ -5,7 +5,7 @@ param(
   [Parameter(Mandatory = $true)]
   [string]$Version,
 
-  [string]$OutputDir = "public/downloads"
+  [string]$OutputDir = "artifacts"
 )
 
 $ErrorActionPreference = "Stop"
@@ -18,7 +18,7 @@ New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 
 $safeVersion = $Version -replace "[^a-zA-Z0-9._-]", "-"
 $versionedZip = Join-Path $OutputDir ("BassProgram-" + $safeVersion + ".zip")
-$latestZip = Join-Path $OutputDir "BassProgram.zip"
+$latestZip = Join-Path $OutputDir "BassProgram-Alpha-0.1-Lite.zip"
 $tempRoot = Join-Path $env:TEMP ("bassprogram-package-" + [guid]::NewGuid().ToString("N"))
 
 New-Item -ItemType Directory -Force -Path $tempRoot | Out-Null

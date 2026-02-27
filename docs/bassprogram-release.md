@@ -5,17 +5,17 @@ Use this workflow to publish a new downloadable package for the site.
 ## Command
 
 ```powershell
-.\scripts\publish-bassprogram.ps1 -SourcePath "C:\Path\To\BassProgram.exe" -Version "0.1.0"
+.\scripts\publish-bassprogram.ps1 -SourcePath "C:\Path\To\BassProgramFolder" -Version "0.1.0"
 ```
 
-You can also pass a folder as `SourcePath` to package multiple files.
+You can pass either an `.exe` path or a folder path as `SourcePath`.
 
 ## Output
 
 The script generates:
 
-- `public/downloads/BassProgram-<version>.zip`
-- `public/downloads/BassProgram.zip` (latest alias used by the site)
+- `artifacts/BassProgram-<version>.zip`
+- `artifacts/BassProgram-Alpha-0.1-Lite.zip` (latest lite alias used by the site)
 
 ## Publish
 

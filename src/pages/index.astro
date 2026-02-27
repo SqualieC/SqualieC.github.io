@@ -42,7 +42,7 @@ const latestProject = projects[0];
           </div>
           <div class="btn-row">
             {project.data.downloadUrl ? (
-              <a class="btn btn-primary" href={project.data.downloadUrl}>Download</a>
+              <a class="btn btn-primary" href={project.data.downloadUrl}>{project.data.downloadLabel ?? 'Download'}</a>
             ) : (
               <a class="btn btn-primary" href={`/projects/${project.slug}`}>Open Project</a>
             )}
