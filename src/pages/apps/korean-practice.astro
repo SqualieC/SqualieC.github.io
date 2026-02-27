@@ -1,0 +1,157 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const seedWords = [
+  { ko: '?????', en: 'hello' },
+  { ko: '?????', en: 'thank you' },
+  { ko: '?????', en: 'sorry' },
+  { ko: '?', en: 'water' },
+  { ko: '?', en: 'rice' },
+  { ko: '??', en: 'school' },
+  { ko: '??', en: 'friend' },
+  { ko: '??', en: 'love' },
+  { ko: '??', en: 'time' },
+  { ko: '??', en: 'today' },
+  { ko: '??', en: 'tomorrow' },
+  { ko: '??', en: 'yesterday' },
+  { ko: '?', en: 'book' },
+  { ko: '??', en: 'music' },
+  { ko: '??', en: 'exercise' },
+  { ko: '??', en: 'study' },
+  { ko: '??', en: 'question' },
+  { ko: '?', en: 'answer' },
+  { ko: '???', en: 'good' },
+  { ko: '????', en: 'it is okay' }
+];
+---
+
+<Layout
+  title="Korean Practice Tool | SqualieC"
+  description="Practice Korean vocabulary online with randomized prompts and instant feedback."
+>
+  <section class="hero hero-surface">
+    <p class="eyebrow">Online Tool</p>
+    <h1>Korean Practice</h1>
+    <p class="lead">Quick browser-based vocab drilling. No account, no backend, instant repetition loop.</p>
+  </section>
+
+  <section class="card section-title">
+    <div class="btn-row">
+      <button id="mode-ko-en" class="btn btn-primary" type="button">Korean -> English</button>
+      <button id="mode-en-ko" class="btn btn-secondary" type="button">English -> Korean</button>
+      <button id="skip" class="btn btn-secondary" type="button">Skip</button>
+    </div>
+
+    <div class="section-title">
+      <p class="eyebrow">Prompt</p>
+      <h2 id="prompt-text">...</h2>
+    </div>
+
+    <div class="meta-row">
+      <span class="badge">Score: <strong id="score">0</strong></span>
+      <span class="badge">Streak: <strong id="streak">0</strong></span>
+      <span class="badge">Mode: <strong id="mode-label">Korean -> English</strong></span>
+    </div>
+
+    <div class="section-title">
+      <label for="answer-input" class="eyebrow">Your answer</label>
+      <input id="answer-input" type="text" class="k-input" autocomplete="off" />
+      <div class="btn-row">
+        <button id="check" class="btn btn-primary" type="button">Check</button>
+      </div>
+      <p id="feedback" class="lead" aria-live="polite"></p>
+    </div>
+  </section>
+</Layout>
+
+<script define:vars={{ seedWords }}>
+  const words = seedWords;
+  let mode = "ko-en";
+  let current = null;
+  let score = 0;
+  let streak = 0;
+
+  const promptText = document.getElementById("prompt-text");
+  const answerInput = document.getElementById("answer-input");
+  const feedback = document.getElementById("feedback");
+  const scoreEl = document.getElementById("score");
+  const streakEl = document.getElementById("streak");
+  const modeLabel = document.getElementById("mode-label");
+
+  function normalize(value) {
+    return value.toLowerCase().trim().replace(/\s+/g, " ");
+  }
+
+  function pickWord() {
+    const idx = Math.floor(Math.random() * words.length);
+    current = words[idx];
+    promptText.textContent = mode === "ko-en" ? current.ko : current.en;
+    feedback.textContent = "";
+    answerInput.value = "";
+    answerInput.focus();
+  }
+
+  function checkAnswer() {
+    if (!current) return;
+
+    const expected = mode === "ko-en" ? current.en : current.ko;
+    const actual = normalize(answerInput.value);
+
+    if (!actual) {
+      feedback.textContent = "Type an answer first.";
+      return;
+    }
+
+    if (normalize(expected) === actual) {
+      score += 1;
+      streak += 1;
+      feedback.textContent = "Correct.";
+    } else {
+      streak = 0;
+      feedback.textContent = `Not quite. Correct answer: ${expected}`;
+    }
+
+    scoreEl.textContent = String(score);
+    streakEl.textContent = String(streak);
+
+    setTimeout(pickWord, 550);
+  }
+
+  function setMode(nextMode) {
+    mode = nextMode;
+    modeLabel.textContent = mode === "ko-en" ? "Korean -> English" : "English -> Korean";
+    pickWord();
+  }
+
+  document.getElementById("check").addEventListener("click", checkAnswer);
+  document.getElementById("skip").addEventListener("click", pickWord);
+  document.getElementById("mode-ko-en").addEventListener("click", () => setMode("ko-en"));
+  document.getElementById("mode-en-ko").addEventListener("click", () => setMode("en-ko"));
+
+  answerInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      checkAnswer();
+    }
+  });
+
+  setMode("ko-en");
+</script>
+
+<style>
+  .k-input {
+    width: min(520px, 100%);
+    background: color-mix(in srgb, var(--bg-soft), transparent 5%);
+    border: 1px solid color-mix(in srgb, var(--muted), transparent 55%);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 0.65rem 0.75rem;
+    font-size: 1rem;
+    margin-top: 0.4rem;
+  }
+
+  .k-input:focus {
+    outline: 2px solid color-mix(in srgb, var(--ring), transparent 30%);
+    outline-offset: 2px;
+  }
+</style>

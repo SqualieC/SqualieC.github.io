@@ -32,3 +32,8 @@ Current backlog is in [TODO.md](TODO.md).
 ## Optional Environment Variables
 
 - `PUBLIC_CF_ANALYTICS_TOKEN` for Cloudflare Web Analytics beacon injection.
+
+## BassProgram release packaging
+
+See [docs/bassprogram-release.md](docs/bassprogram-release.md).
+
