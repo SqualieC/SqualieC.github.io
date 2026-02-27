@@ -1,0 +1,24 @@
+{
+  "name": "mywebsite",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "search:index": "pagefind --site dist",
+    "build:search": "astro build && pagefind --site dist",
+    "dev:host": "astro dev --host",
+    "preview:local": "npm run build && npm run search:index && npm run preview",
+    "cf:deploy": "npx wrangler versions upload --assets=./dist",
+    "cf:build-deploy": "npm run build:search && npm run cf:deploy"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^4.3.13",
+    "@tailwindcss/vite": "^4.2.1",
+    "astro": "^5.17.1",
+    "pagefind": "^1.4.0",
+    "tailwindcss": "^4.2.1"
+  }
+}

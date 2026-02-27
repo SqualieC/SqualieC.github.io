@@ -1,0 +1,72 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project }
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+
+const actionLinks = [
+  project.data.downloadUrl ? { href: project.data.downloadUrl, label: 'Download', variant: 'primary' } : null,
+  project.data.demoUrl ? { href: project.data.demoUrl, label: 'Live Demo', variant: 'secondary' } : null,
+  project.data.repoUrl ? { href: project.data.repoUrl, label: 'Repository', variant: 'secondary' } : null
+].filter(Boolean);
+
+const screenshot = project.data.screenshots[0] ?? '/og-default.svg';
+---
+
+<Layout title={`${project.data.title} | SqualieC`} description={project.data.pitch} image={screenshot}>
+  <article class="hero hero-surface">
+    <p class="eyebrow">Project</p>
+    <h1>{project.data.title}</h1>
+    <p class="lead">{project.data.pitch}</p>
+
+    <div class="meta-row">
+      <span class="badge">{project.data.status}</span>
+      <span class="badge">{project.data.priceModel}</span>
+      <span class="badge">Updated {project.data.updatedAt.toISOString().slice(0, 10)}</span>
+    </div>
+
+    <div class="btn-row">
+      {actionLinks.map((action) => (
+        <a href={action.href} class={action.variant === 'primary' ? 'btn btn-primary' : 'btn btn-secondary'}>{action.label}</a>
+      ))}
+    </div>
+  </article>
+
+  <section class="detail-grid section-title">
+    <article class="prose card">
+      <Content />
+    </article>
+
+    <aside class="detail-side">
+      <h3>Quick facts</h3>
+      <dl class="kv-list">
+        <div>
+          <dt>Status</dt>
+          <dd>{project.data.status}</dd>
+        </div>
+        <div>
+          <dt>Pricing</dt>
+          <dd>{project.data.priceModel}</dd>
+        </div>
+        <div>
+          <dt>Platform</dt>
+          <dd>{project.data.platform.join(', ')}</dd>
+        </div>
+        <div>
+          <dt>Mic/Audio</dt>
+          <dd>{project.data.usesMicAudio ? 'Yes' : 'No'}</dd>
+        </div>
+      </dl>
+    </aside>
+  </section>
+</Layout>

@@ -1,0 +1,41 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => b.data.updatedAt.valueOf() - a.data.updatedAt.valueOf()
+);
+---
+
+<Layout title="Projects | SqualieC" description="Catalog of experiments, games, and software utilities.">
+  <section class="hero hero-surface">
+    <p class="eyebrow">Projects</p>
+    <h1>Catalog</h1>
+    <p class="lead">Each card is generated from typed metadata, so status, platform, pricing, and links stay consistent.</p>
+  </section>
+
+  <section>
+    <div class="grid">
+      {projects.map((project) => (
+        <article class="card">
+          <h3>{project.data.title}</h3>
+          <p>{project.data.pitch}</p>
+          <div class="meta-row">
+            {project.data.tags.map((tag) => (
+              <span class="badge">{tag}</span>
+            ))}
+          </div>
+          <div class="meta-row">
+            <span class="badge">Updated {project.data.updatedAt.toISOString().slice(0, 10)}</span>
+            <span class="badge">{project.data.status}</span>
+          </div>
+          <div class="btn-row">
+            {project.data.downloadUrl && <a class="btn btn-primary" href={project.data.downloadUrl}>Download</a>}
+            {project.data.demoUrl && <a class="btn btn-secondary" href={project.data.demoUrl}>Live Demo</a>}
+            <a class="btn btn-secondary" href={`/projects/${project.slug}`}>Details</a>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</Layout>

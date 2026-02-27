@@ -1,0 +1,42 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Search | SqualieC" description="Static full-text search powered by Pagefind.">
+  <section class="hero">
+    <p class="eyebrow">Search</p>
+    <h1>Find any project or post fast.</h1>
+    <p class="lead">This index is generated at build time and requires no backend database.</p>
+  </section>
+
+  <section class="search-shell">
+    <div id="search"></div>
+    <p id="search-status" class="lead">Loading Pagefind UI...</p>
+  </section>
+</Layout>
+
+<script>
+  async function mountSearch() {
+    const status = document.getElementById('search-status');
+
+    try {
+      const pagefindUiPath = '/pagefind/pagefind-ui.js';
+      await import(/* @vite-ignore */ pagefindUiPath);
+      // @ts-ignore
+      new window.PagefindUI({
+        element: '#search',
+        showSubResults: true,
+        resetStyles: false
+      });
+      if (status) status.textContent = 'Search index loaded.';
+    } catch {
+      if (status) {
+        status.textContent = 'Search index not available in dev. Run npm run build, then npm run search:index, then npm run preview to test it.';
+      }
+    }
+  }
+
+  mountSearch();
+</script>
+
+

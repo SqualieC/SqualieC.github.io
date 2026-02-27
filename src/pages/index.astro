@@ -1,0 +1,55 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => b.data.updatedAt.valueOf() - a.data.updatedAt.valueOf()
+);
+const featured = projects.filter((project) => project.data.featured).slice(0, 4);
+const latestProject = projects[0];
+---
+
+<Layout
+  title="SqualieC | Maker Projects"
+  description="A searchable, fast project catalog with downloadable builds and practical devlogs."
+>
+  <section class="hero hero-surface">
+    <p class="eyebrow">Portfolio</p>
+    <h1>Project library, downloadable builds, and devlogs.</h1>
+    <p class="lead">
+      Static-first Astro architecture with typed content collections keeps the site fast while making every project
+      page consistent and easy to maintain.
+    </p>
+    <div class="btn-row">
+      <a href="/projects" class="btn btn-primary">Browse Projects</a>
+      <a href="/projects/bassprogram" class="btn btn-secondary">Download BassProgram</a>
+    </div>
+    {latestProject && (
+      <p class="lead">Latest update: <strong>{latestProject.data.title}</strong> ({latestProject.data.updatedAt.toISOString().slice(0, 10)})</p>
+    )}
+  </section>
+
+  <section>
+    <h2 class="section-title">Featured Work</h2>
+    <div class="grid">
+      {featured.map((project) => (
+        <article class="card">
+          <h3>{project.data.title}</h3>
+          <p>{project.data.pitch}</p>
+          <div class="meta-row">
+            <span class="badge">{project.data.status}</span>
+            <span class="badge">{project.data.priceModel}</span>
+          </div>
+          <div class="btn-row">
+            {project.data.downloadUrl ? (
+              <a class="btn btn-primary" href={project.data.downloadUrl}>Download</a>
+            ) : (
+              <a class="btn btn-primary" href={`/projects/${project.slug}`}>Open Project</a>
+            )}
+            <a class="btn btn-secondary" href={`/projects/${project.slug}`}>Details</a>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</Layout>

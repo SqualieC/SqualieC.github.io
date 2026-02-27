@@ -1,0 +1,67 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  noindex?: boolean;
+}
+
+const {
+  title = 'SqualieC | Projects',
+  description = 'Build logs, playable demos, and software projects by SqualieC.',
+  image = '/og-default.svg',
+  noindex = false
+} = Astro.props;
+
+const siteUrl = Astro.site ?? new URL('https://squaliec.github.io');
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl);
+const ogImageUrl = new URL(image, siteUrl);
+const cfAnalyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
+const beaconConfig = cfAnalyticsToken ? JSON.stringify({ token: cfAnalyticsToken }) : undefined;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl.href} />
+    <meta property="og:image" content={ogImageUrl.href} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl.href} />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+    <link rel="canonical" href={canonicalUrl.href} />
+    <link rel="icon" href="/favicon.ico" />
+    <title>{title}</title>
+    {beaconConfig && (
+      <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={beaconConfig}></script>
+    )}
+  </head>
+  <body class="site-shell">
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <header class="site-header">
+      <a href="/" class="logo">SqualieC</a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="/projects">Projects</a>
+        <a href="/blog">Blog</a>
+        <a href="/tools">Tools</a>
+        <a href="/search">Search</a>
+      </nav>
+    </header>
+    <main id="main-content" class="site-main" data-pagefind-body>
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>Built with Astro + TypeScript + Tailwind + MDX.</p>
+    </footer>
+  </body>
+</html>

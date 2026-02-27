@@ -1,0 +1,23 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+const tools = (await getCollection('tools')).sort((a, b) => b.data.updatedAt.valueOf() - a.data.updatedAt.valueOf());
+---
+
+<Layout title="Tools | SqualieC" description="Process notes, reusable templates, and docs.">
+  <section class="hero">
+    <p class="eyebrow">Tools</p>
+    <h1>Tooling Notes</h1>
+  </section>
+
+  <section class="grid">
+    {tools.map((tool) => (
+      <article class="card">
+        <h3>{tool.data.title}</h3>
+        <p>{tool.data.summary}</p>
+        <a class="cta" href={`/tools/${tool.slug}`}>Open note</a>
+      </article>
+    ))}
+  </section>
+</Layout>

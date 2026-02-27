@@ -1,0 +1,23 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+const posts = (await getCollection('blog')).sort((a, b) => b.data.updatedAt.valueOf() - a.data.updatedAt.valueOf());
+---
+
+<Layout title="Blog | SqualieC" description="Build logs and project updates.">
+  <section class="hero">
+    <p class="eyebrow">Devlog</p>
+    <h1>Blog</h1>
+  </section>
+
+  <section class="grid">
+    {posts.map((post) => (
+      <article class="card">
+        <h3>{post.data.title}</h3>
+        <p>{post.data.summary}</p>
+        <a class="cta" href={`/blog/${post.slug}`}>Read post</a>
+      </article>
+    ))}
+  </section>
+</Layout>
