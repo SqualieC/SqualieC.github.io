@@ -22,10 +22,10 @@ const actionLinks = [
     ? {
         href: project.data.secondaryDownloadUrl,
         label: project.data.secondaryDownloadLabel ?? 'Download (Alt)',
-        variant: 'secondary'
+        variant: 'primary'
       }
     : null,
-  project.data.demoUrl ? { href: project.data.demoUrl, label: 'Live Demo', variant: 'secondary' } : null,
+  project.data.demoUrl ? { href: project.data.demoUrl, label: 'Live Demo', variant: 'online' } : null,
   project.data.repoUrl ? { href: project.data.repoUrl, label: 'Repository', variant: 'secondary' } : null
 ].filter(Boolean);
 
@@ -46,7 +46,12 @@ const screenshot = project.data.screenshots[0] ?? '/og-default.svg';
 
     <div class="btn-row">
       {actionLinks.map((action) => (
-        <a href={action.href} class={action.variant === 'primary' ? 'btn btn-primary' : 'btn btn-secondary'}>{action.label}</a>
+        <a
+          href={action.href}
+          class={action.variant === 'primary' ? 'btn btn-primary' : action.variant === 'online' ? 'btn btn-online' : 'btn btn-secondary'}
+        >
+          {action.label}
+        </a>
       ))}
     </div>
   </article>

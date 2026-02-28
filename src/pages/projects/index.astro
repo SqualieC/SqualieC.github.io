@@ -31,7 +31,7 @@ const projects = (await getCollection('projects')).sort(
           </div>
           <div class="btn-row">
             {project.data.downloadUrl && <a class="btn btn-primary" href={project.data.downloadUrl}>{project.data.downloadLabel ?? 'Download'}</a>}
-            {project.data.demoUrl && <a class="btn btn-secondary" href={project.data.demoUrl}>Live Demo</a>}
+            {project.data.demoUrl && <a class="btn btn-online" href={project.data.demoUrl}>Live Demo</a>}
             <a class="btn btn-secondary" href={`/projects/${project.slug}`}>Details</a>
           </div>
         </article>

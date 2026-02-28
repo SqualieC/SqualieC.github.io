@@ -252,6 +252,21 @@ h2 {
   background: linear-gradient(120deg, var(--accent), color-mix(in srgb, var(--accent), white 12%));
 }
 
+.btn-online {
+  color: #dcfff8;
+  border: 1px solid color-mix(in srgb, var(--accent), transparent 48%);
+  background: linear-gradient(
+    120deg,
+    color-mix(in srgb, var(--accent), black 38%),
+    color-mix(in srgb, var(--accent), var(--bg-soft) 55%)
+  );
+}
+
+.btn-online:hover {
+  border-color: color-mix(in srgb, var(--ring), transparent 25%);
+  filter: brightness(1.08);
+}
+
 .btn-secondary {
   color: var(--text);
   border: 1px solid color-mix(in srgb, var(--muted), transparent 58%);
