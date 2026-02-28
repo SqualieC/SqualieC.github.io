@@ -1,0 +1,46 @@
+---
+title: Post v0.7 Beta
+pitch: Lightweight Windows note overlay for gaming with always-on-top UI, click-through lock mode, and global hotkeys.
+tags:
+  - python
+  - windows
+  - gaming
+  - productivity
+status: active
+screenshots: []
+downloadUrl: /downloads/Post-v0.7-Beta.zip
+downloadLabel: "Post v0.7 Beta"
+priceModel: free
+platform:
+  - windows
+updatedAt: 2026-02-28
+usesMicAudio: false
+monetizationType: none
+featured: true
+---
+
+## What it does
+
+Post is a desktop sticky-note style overlay built for gaming sessions. It stays on top, supports adjustable opacity, can switch to click-through mode so it does not steal game input, and saves notes as plain `.txt` files.
+
+## Core controls
+
+- `Ctrl+Alt+N`: toggle `Lock` / `Edit`
+- `Ctrl+Alt+M`: show / hide overlay
+- `Ctrl+Alt+E`: force recovery back to editable mode
+- `Esc`: lock immediately
+- `Ctrl+S`: save note
+- `Ctrl+O`: open note file
+
+## Included in this beta download
+
+- `post_overlay.py` main app
+- `Post.pyw` double-click launcher (no terminal window)
+- `Post.bat` launcher fallback
+- `README.md` quick guide and troubleshooting
+- `post_note.txt` default note file
+
+## Notes
+
+- Requires Python on Windows to run the `.py` / `.pyw` launchers.
+- State is persisted in `post_state.json` after first launch (window size, position, opacity, and last file).

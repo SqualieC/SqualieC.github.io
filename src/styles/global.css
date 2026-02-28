@@ -109,6 +109,42 @@ a {
   font-size: 0.9rem;
 }
 
+.footer-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.socials {
+  min-width: 180px;
+}
+
+.footer-heading {
+  margin: 0 0 0.4rem;
+  color: var(--text);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.social-links {
+  display: flex;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.social-links a {
+  text-decoration: none;
+  color: var(--muted);
+  border-bottom: 1px solid color-mix(in srgb, var(--accent), transparent 55%);
+}
+
+.social-links a:hover {
+  color: var(--text);
+}
+
 .hero {
   display: grid;
   gap: 1rem;
@@ -292,6 +328,11 @@ h2 {
 
   .btn {
     width: 100%;
+  }
+
+  .footer-grid {
+    flex-direction: column;
+    gap: 0.6rem;
   }
 }
 

@@ -61,7 +61,15 @@ const beaconConfig = cfAnalyticsToken ? JSON.stringify({ token: cfAnalyticsToken
       <slot />
     </main>
     <footer class="site-footer">
-      <p>Built with Astro + TypeScript + Tailwind + MDX.</p>
+      <div class="footer-grid">
+        <p>Built with Astro + TypeScript + Tailwind + MDX.</p>
+        <section class="socials" aria-label="Social links">
+          <p class="footer-heading">Socials</p>
+          <div class="social-links">
+            <a href="https://www.last.fm/user/SqualieC" target="_blank" rel="noopener noreferrer">Last.fm</a>
+          </div>
+        </section>
+      </div>
     </footer>
   </body>
 </html>
