@@ -248,17 +248,17 @@ h2 {
 }
 
 .btn-primary {
-  color: #fff5ef;
-  border: 1px solid color-mix(in srgb, var(--accent-2), transparent 42%);
+  color: #eef4ff;
+  border: 1px solid color-mix(in srgb, #6f8dff, transparent 38%);
   background: linear-gradient(
     120deg,
-    color-mix(in srgb, var(--accent-2), black 24%),
-    color-mix(in srgb, var(--accent-2), #ffc09f 42%)
+    color-mix(in srgb, #4f6fff, black 30%),
+    color-mix(in srgb, #7a63d6, #5b8dff 48%)
   );
 }
 
 .btn-primary:hover {
-  border-color: color-mix(in srgb, var(--accent-2), white 18%);
+  border-color: color-mix(in srgb, #7c99ff, white 16%);
   filter: brightness(1.08);
 }
 
