@@ -1,0 +1,39 @@
+---
+import Layout from '../layouts/Layout.astro';
+import dlesLinks from '../data/dles-links.json';
+
+type DlesLink = {
+  title: string;
+  url: string;
+};
+
+const links = dlesLinks as DlesLink[];
+---
+
+<Layout title="Dles | SqualieC" description="Daily game links from your Dles bookmark folder.">
+  <section class="hero hero-surface">
+    <p class="eyebrow">Daily Games</p>
+    <h1>Dles</h1>
+    <p class="lead">
+      All links below come from your Vivaldi <strong>Dles</strong> bookmarks folder. Each button opens in a new tab.
+    </p>
+    <div class="meta-row">
+      <span class="badge">{links.length} links</span>
+    </div>
+  </section>
+
+  <section class="projects-list">
+    <div class="grid">
+      {links.map((link) => (
+        <article class="card">
+          <h3>{link.title}</h3>
+          <div class="btn-row">
+            <a class="btn btn-online" href={link.url} target="_blank" rel="noopener noreferrer">
+              Open
+            </a>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</Layout>
