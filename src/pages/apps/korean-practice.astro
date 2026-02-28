@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import sentences from '../../data/korean-sentences.json';
 import words from '../../data/korean-words.json';
+import kor111 from '../../data/korean-kor111-unitized.json';
 ---
 
 <Layout
@@ -29,6 +30,7 @@ import words from '../../data/korean-words.json';
       <select id="modeSelect" aria-label="Practice mode">
         <option value="sentences">Everyday Sentences</option>
         <option value="words">Beginner Words</option>
+        <option value="kor111">KOR111 Unitized Vocabulary</option>
       </select>
 
       <label for="voiceSelect">Fallback Voice</label>
@@ -38,10 +40,31 @@ import words from '../../data/korean-words.json';
       <input id="rateRange" type="range" min="0.7" max="1.2" step="0.05" value="0.95" />
     </div>
 
+    <div id="unitFilterRow" class="unit-filter-row hidden">
+      <span class="unit-filter-label">Units</span>
+      <label class="unit-chip">
+        <input id="unitAllToggle" type="checkbox" checked />
+        All
+      </label>
+      <label class="unit-chip">
+        <input id="unit1Toggle" type="checkbox" checked />
+        Unit 1
+      </label>
+      <label class="unit-chip">
+        <input id="unit2Toggle" type="checkbox" checked />
+        Unit 2
+      </label>
+      <label class="unit-chip">
+        <input id="unit3Toggle" type="checkbox" checked />
+        Unit 3
+      </label>
+    </div>
+
     <!-- ── READING PANEL ─────────────────────────────────────── -->
     <div id="readingPanel">
       <section id="koreanText" class="sentence" aria-live="polite">Loading...</section>
       <section id="englishText" class="translation hidden" aria-live="polite"></section>
+      <section id="itemMeta" class="item-meta hidden" aria-live="polite"></section>
 
       <div class="btn-row">
         <button id="newBtn" class="btn btn-primary" type="button">New Item</button>
@@ -134,7 +157,7 @@ import words from '../../data/korean-words.json';
   </section>
 </Layout>
 
-<script define:vars={{ sentences, words }}>
+<script define:vars={{ sentences, words, kor111 }}>
   // ── Elements ──────────────────────────────────────────────
   const modeSelect    = document.getElementById("modeSelect");
   const voiceSelect   = document.getElementById("voiceSelect");
@@ -143,10 +166,16 @@ import words from '../../data/korean-words.json';
   const dictationTab  = document.getElementById("dictationTab");
   const readingPanel  = document.getElementById("readingPanel");
   const dictationPanel = document.getElementById("dictationPanel");
+  const unitFilterRow = document.getElementById("unitFilterRow");
+  const unitAllToggle = document.getElementById("unitAllToggle");
+  const unit1Toggle   = document.getElementById("unit1Toggle");
+  const unit2Toggle   = document.getElementById("unit2Toggle");
+  const unit3Toggle   = document.getElementById("unit3Toggle");
 
   // Reading
   const koreanTextEl  = document.getElementById("koreanText");
   const englishTextEl = document.getElementById("englishText");
+  const itemMetaEl    = document.getElementById("itemMeta");
   const readStatus    = document.getElementById("readStatus");
   const newBtn        = document.getElementById("newBtn");
   const revealPlayBtn = document.getElementById("revealPlayBtn");
@@ -163,13 +192,16 @@ import words from '../../data/korean-words.json';
   const dictNextBtn   = document.getElementById("dictNextBtn");
 
   // ── State ─────────────────────────────────────────────────
-  const pools = { sentences, words };
+  const pools = { sentences, words, kor111 };
   const PREFETCHED_AUDIO_BASE = "/audio/korean";
+  const ALL_UNITS = [1, 2, 3];
+  const unitToggles = [unit1Toggle, unit2Toggle, unit3Toggle];
 
   let current    = null;
   let activeAudio = null;
   let appMode    = "reading";  // "reading" | "dictation"
   let dictState  = "ready";    // "ready" | "wrong" | "correct"
+  let selectedUnits = new Set(ALL_UNITS);
 
   // ── Mode switching ─────────────────────────────────────────
   readingTab.addEventListener("click",   () => switchAppMode("reading"));
@@ -196,7 +228,12 @@ import words from '../../data/korean-words.json';
   }
 
   function getPrefetchedAudioUrl(item) {
-    if (!item || item._index === undefined || item._mode === undefined) return null;
+    if (!item || item._mode === undefined) return null;
+    if (item._mode === "kor111") {
+      if (!item.audioFile) return null;
+      return `${PREFETCHED_AUDIO_BASE}/kor111/${item.audioFile}`;
+    }
+    if (item._index === undefined) return null;
     return `${PREFETCHED_AUDIO_BASE}/${item._mode}/${item._index}.mp3`;
   }
 
@@ -278,17 +315,107 @@ import words from '../../data/korean-words.json';
   }
 
   // ── Random item ────────────────────────────────────────────
+  function isKor111Mode() {
+    return modeSelect.value === "kor111";
+  }
+
+  function syncUnitControlsFromState() {
+    unitToggles.forEach((toggle, idx) => {
+      toggle.checked = selectedUnits.has(ALL_UNITS[idx]);
+    });
+    unitAllToggle.checked = ALL_UNITS.every(unit => selectedUnits.has(unit));
+  }
+
+  function applyUnitFilterVisibility() {
+    unitFilterRow.classList.toggle("hidden", !isKor111Mode());
+  }
+
+  function filteredKor111Pool() {
+    return pools.kor111.filter(item => selectedUnits.has(Number(item.unit)));
+  }
+
   function randomItem() {
-    const mode  = modeSelect.value === "words" ? "words" : "sentences";
-    const pool  = pools[mode] || pools.sentences;
+    const mode = modeSelect.value;
+    let pool = [];
+    if (mode === "kor111") {
+      pool = filteredKor111Pool();
+    } else if (mode === "words") {
+      pool = pools.words || [];
+    } else {
+      pool = pools.sentences || [];
+    }
+    if (!pool.length) return null;
     const index = Math.floor(Math.random() * pool.length);
     return { ...pool[index], _index: index, _mode: mode };
+  }
+
+  function setPracticeDisabled(disabled) {
+    newBtn.disabled = disabled;
+    revealPlayBtn.disabled = disabled;
+    playBtn.disabled = disabled;
+    dictPlayBtn.disabled = disabled;
+    dictSkipBtn.disabled = disabled;
+    dictNextBtn.disabled = disabled;
+  }
+
+  function metadataHtml(item) {
+    if (!item || item._mode !== "kor111") return "";
+    const bits = [`Unit ${item.unit}`, item.section, item.category]
+      .filter(Boolean)
+      .map(part => `<span class="meta-badge">${esc(String(part))}</span>`)
+      .join("");
+    return bits ? `<div class="meta-badges">${bits}</div>` : "";
+  }
+
+  function renderItemMeta(item) {
+    const html = metadataHtml(item);
+    if (!html) {
+      itemMetaEl.innerHTML = "";
+      itemMetaEl.classList.add("hidden");
+      return;
+    }
+    itemMetaEl.innerHTML = html;
+    itemMetaEl.classList.remove("hidden");
+  }
+
+  function renderNoUnitSelectionState() {
+    current = null;
+    setPracticeDisabled(true);
+    setReadStatus("");
+    setDictStatus("");
+    renderItemMeta(null);
+
+    if (appMode === "reading") {
+      koreanTextEl.textContent = "Select at least one KOR111 unit to continue.";
+      englishTextEl.textContent = "";
+      englishTextEl.classList.add("hidden");
+      setReadStatus("No units selected.");
+      return;
+    }
+
+    resetHangulCompose();
+    dictInput.value = "";
+    dictInput.disabled = true;
+    dictSubmitBtn.disabled = true;
+    dictResult.className = "result-box result-info";
+    dictResult.innerHTML =
+      "<strong>Choose at least one unit.</strong>" +
+      '<span class="result-english">Enable Unit 1, Unit 2, or Unit 3 to continue dictation.</span>';
+    dictResult.classList.remove("hidden");
+    dictNextRow.classList.add("hidden");
+    setDictStatus("No units selected.");
   }
 
   // ── Load new item ──────────────────────────────────────────
   function loadNewItem() {
     stopPlayback();
     current = randomItem();
+    if (!current) {
+      renderNoUnitSelectionState();
+      return;
+    }
+    setPracticeDisabled(false);
+    dictNextBtn.disabled = false;
     if (appMode === "reading") {
       renderReading(current);
     } else {
@@ -296,13 +423,40 @@ import words from '../../data/korean-words.json';
     }
   }
 
-  modeSelect.addEventListener("change", loadNewItem);
+  modeSelect.addEventListener("change", () => {
+    applyUnitFilterVisibility();
+    loadNewItem();
+  });
+
+  unitAllToggle.addEventListener("change", () => {
+    if (unitAllToggle.checked) {
+      selectedUnits = new Set(ALL_UNITS);
+    } else {
+      selectedUnits = new Set();
+    }
+    syncUnitControlsFromState();
+    if (isKor111Mode()) loadNewItem();
+  });
+
+  unitToggles.forEach((toggle, idx) => {
+    toggle.addEventListener("change", () => {
+      const unit = ALL_UNITS[idx];
+      if (toggle.checked) {
+        selectedUnits.add(unit);
+      } else {
+        selectedUnits.delete(unit);
+      }
+      syncUnitControlsFromState();
+      if (isKor111Mode()) loadNewItem();
+    });
+  });
 
   // ── Reading mode ───────────────────────────────────────────
   function renderReading(item) {
     koreanTextEl.textContent = item.korean;
     englishTextEl.textContent = item.english;
     englishTextEl.classList.add("hidden");
+    renderItemMeta(item);
     setReadStatus("");
   }
 
@@ -354,7 +508,8 @@ import words from '../../data/korean-words.json';
       dictResult.innerHTML =
         `<strong>&#10003; Correct!</strong>` +
         `<span class="result-korean">${esc(correct)}</span>` +
-        `<span class="result-english">${esc(current.english)}</span>`;
+        `<span class="result-english">${esc(current.english)}</span>` +
+        metadataHtml(current);
       dictResult.classList.remove("hidden");
       dictNextRow.classList.remove("hidden");
     } else {
@@ -363,8 +518,9 @@ import words from '../../data/korean-words.json';
       dictInput.value = "";
       dictResult.className = "result-box result-wrong";
       dictResult.innerHTML =
-        `<strong>&#10007; Incorrect — type the correct answer to continue:</strong>` +
-        `<span class="result-korean">${esc(correct)}</span>`;
+        `<strong>&#10007; Incorrect - type the correct answer to continue:</strong>` +
+        `<span class="result-korean">${esc(correct)}</span>` +
+        metadataHtml(current);
       dictResult.classList.remove("hidden");
       dictInput.focus();
     }
@@ -521,6 +677,8 @@ import words from '../../data/korean-words.json';
     populateVoiceSelect();
   }
 
+  applyUnitFilterVisibility();
+  syncUnitControlsFromState();
   loadNewItem();
 </script>
 
@@ -582,6 +740,37 @@ import words from '../../data/korean-words.json';
     padding: 0.48rem 0.58rem;
   }
 
+  .unit-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .unit-filter-label {
+    color: var(--muted);
+    font-size: 0.84rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-right: 0.15rem;
+  }
+
+  .unit-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border: 1px solid color-mix(in srgb, var(--muted), transparent 50%);
+    border-radius: 999px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.86rem;
+    background: color-mix(in srgb, var(--bg-soft), transparent 8%);
+  }
+
+  .unit-chip input {
+    margin: 0;
+    accent-color: var(--accent);
+  }
+
   .sentence {
     min-height: 105px;
     background: color-mix(in srgb, var(--bg-soft), transparent 10%);
@@ -603,6 +792,29 @@ import words from '../../data/korean-words.json';
   }
 
   .translation.hidden { visibility: hidden; }
+
+  .item-meta {
+    min-height: 30px;
+  }
+
+  .meta-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .meta-badge {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid color-mix(in srgb, var(--accent), transparent 68%);
+    border-radius: 999px;
+    padding: 0.2rem 0.55rem;
+    background: color-mix(in srgb, var(--accent), transparent 90%);
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
 
   .status {
     color: var(--muted);
@@ -670,6 +882,12 @@ import words from '../../data/korean-words.json';
     background: color-mix(in srgb, #b0341d, transparent 90%);
     border: 1px solid color-mix(in srgb, #b0341d, transparent 70%);
     color: #b0341d;
+  }
+
+  .result-info {
+    background: color-mix(in srgb, var(--muted), transparent 90%);
+    border: 1px solid color-mix(in srgb, var(--muted), transparent 70%);
+    color: var(--muted);
   }
 
   .result-korean {

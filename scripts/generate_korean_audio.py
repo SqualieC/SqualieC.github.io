@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DATASETS = {
     "sentences": ROOT / "src" / "data" / "korean-sentences.json",
     "words": ROOT / "src" / "data" / "korean-words.json",
+    "kor111": ROOT / "src" / "data" / "korean-kor111-unitized.json",
 }
 
 OUT_ROOT = ROOT / "public" / "audio" / "korean"
@@ -35,7 +36,13 @@ async def generate_audio(force: bool) -> None:
             if not text:
                 continue
 
-            output_path = mode_dir / f"{index}.mp3"
+            if mode == "kor111":
+                audio_file = str(item.get("audioFile", "")).strip()
+                if not audio_file:
+                    audio_file = f"{index}.mp3"
+                output_path = mode_dir / audio_file
+            else:
+                output_path = mode_dir / f"{index}.mp3"
             if output_path.exists() and not force:
                 skipped += 1
                 continue
