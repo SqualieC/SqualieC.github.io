@@ -5,19 +5,25 @@ import words from '../../data/korean-words.json';
 ---
 
 <Layout
-  title="Korean Reading Practice | SqualieC"
-  description="Read Korean first, reveal translation, and play Microsoft Edge SunHiNeural Korean audio on the live site."
+  title="Korean Practice | SqualieC"
+  description="Read or dictation-practice Korean with pre-rendered Microsoft Edge SunHiNeural TTS audio."
 >
   <section class="hero hero-surface">
     <p class="eyebrow">Online Tool</p>
-    <h1>Korean Reading Practice</h1>
+    <h1>Korean Practice</h1>
     <p class="lead">
-      This is now fully site-hosted and always available. It uses your real sentence and vocabulary sets directly in
-      the browser, with pre-rendered Microsoft Edge neural Korean TTS (SunHi) for playback quality.
+      Practice reading or listening to Korean. Uses pre-rendered Microsoft Edge neural Korean TTS (SunHi) for
+      high-quality playback.
     </p>
   </section>
 
   <section class="card section-title practice-shell">
+    <!-- Reading / Dictation toggle -->
+    <div class="mode-toggle">
+      <button id="readingTab" class="mode-tab active" type="button">Reading</button>
+      <button id="dictationTab" class="mode-tab" type="button">Dictation</button>
+    </div>
+
     <div class="control-row">
       <label for="modeSelect">Mode</label>
       <select id="modeSelect" aria-label="Practice mode">
@@ -32,16 +38,93 @@ import words from '../../data/korean-words.json';
       <input id="rateRange" type="range" min="0.7" max="1.2" step="0.05" value="0.95" />
     </div>
 
-    <section id="koreanText" class="sentence" aria-live="polite">Loading...</section>
-    <section id="englishText" class="translation hidden" aria-live="polite"></section>
+    <!-- ── READING PANEL ─────────────────────────────────────── -->
+    <div id="readingPanel">
+      <section id="koreanText" class="sentence" aria-live="polite">Loading...</section>
+      <section id="englishText" class="translation hidden" aria-live="polite"></section>
 
-    <div class="btn-row">
-      <button id="newBtn" class="btn btn-primary" type="button">New Item</button>
-      <button id="revealPlayBtn" class="btn btn-secondary" type="button">Reveal + Play</button>
-      <button id="playBtn" class="btn btn-secondary" type="button">Play Again</button>
+      <div class="btn-row">
+        <button id="newBtn" class="btn btn-primary" type="button">New Item</button>
+        <button id="revealPlayBtn" class="btn btn-secondary" type="button">Reveal + Play</button>
+        <button id="playBtn" class="btn btn-secondary" type="button">Play Again</button>
+      </div>
+
+      <div id="readStatus" class="status"></div>
     </div>
 
-    <div id="status" class="status"></div>
+    <!-- ── DICTATION PANEL ───────────────────────────────────── -->
+    <div id="dictationPanel" class="hidden">
+      <div class="dict-audio-row">
+        <button id="dictPlayBtn" class="btn btn-primary" type="button">&#128266; Play Audio</button>
+        <button id="dictSkipBtn" class="btn btn-secondary" type="button">Skip</button>
+        <div id="dictStatus" class="status dict-status"></div>
+      </div>
+
+      <div class="dict-input-row">
+        <input
+          id="dictInput"
+          type="text"
+          lang="ko"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="한국어로 입력하세요…"
+          class="dict-input"
+        />
+        <button id="dictSubmitBtn" class="btn btn-primary" type="button">Submit</button>
+      </div>
+
+      <div id="dictResult" class="hidden"></div>
+
+      <div id="dictNextRow" class="btn-row hidden">
+        <button id="dictNextBtn" class="btn btn-primary" type="button">Next &#8594;</button>
+      </div>
+
+      <!-- Hangul keyboard layout reference -->
+      <div class="kb-section">
+        <p class="kb-title">Hangul Keyboard Layout (두벌식)</p>
+        <div class="kb-wrap">
+          <!-- Row 1: QWERTYUIOP -->
+          <div class="kb-row">
+            <div class="kb-key"><span class="qwerty">Q</span><span class="sh">ㅃ</span>ㅂ</div>
+            <div class="kb-key"><span class="qwerty">W</span><span class="sh">ㅉ</span>ㅈ</div>
+            <div class="kb-key"><span class="qwerty">E</span><span class="sh">ㄸ</span>ㄷ</div>
+            <div class="kb-key"><span class="qwerty">R</span><span class="sh">ㄲ</span>ㄱ</div>
+            <div class="kb-key"><span class="qwerty">T</span><span class="sh">ㅆ</span>ㅅ</div>
+            <div class="kb-key"><span class="qwerty">Y</span>ㅛ</div>
+            <div class="kb-key"><span class="qwerty">U</span>ㅕ</div>
+            <div class="kb-key"><span class="qwerty">I</span>ㅑ</div>
+            <div class="kb-key"><span class="qwerty">O</span>ㅐ</div>
+            <div class="kb-key"><span class="qwerty">P</span>ㅔ</div>
+          </div>
+          <!-- Row 2: ASDFGHJKL -->
+          <div class="kb-row kb-row-2">
+            <div class="kb-key"><span class="qwerty">A</span>ㅁ</div>
+            <div class="kb-key"><span class="qwerty">S</span>ㄴ</div>
+            <div class="kb-key"><span class="qwerty">D</span>ㅇ</div>
+            <div class="kb-key"><span class="qwerty">F</span>ㄹ</div>
+            <div class="kb-key"><span class="qwerty">G</span>ㅎ</div>
+            <div class="kb-key"><span class="qwerty">H</span>ㅗ</div>
+            <div class="kb-key"><span class="qwerty">J</span>ㅓ</div>
+            <div class="kb-key"><span class="qwerty">K</span>ㅏ</div>
+            <div class="kb-key"><span class="qwerty">L</span>ㅣ</div>
+          </div>
+          <!-- Row 3: ZXCVBNM -->
+          <div class="kb-row kb-row-3">
+            <div class="kb-key"><span class="qwerty">Z</span>ㅋ</div>
+            <div class="kb-key"><span class="qwerty">X</span>ㅌ</div>
+            <div class="kb-key"><span class="qwerty">C</span>ㅊ</div>
+            <div class="kb-key"><span class="qwerty">V</span>ㅍ</div>
+            <div class="kb-key"><span class="qwerty">B</span>ㅠ</div>
+            <div class="kb-key"><span class="qwerty">N</span>ㅜ</div>
+            <div class="kb-key"><span class="qwerty">M</span>ㅡ</div>
+          </div>
+        </div>
+        <p class="kb-note">
+          Blue characters (top-right) are typed with Shift. Toggle Korean IME with <strong>한/영</strong> or
+          <strong>Alt+Shift</strong>.
+        </p>
+      </div>
+    </div>
 
     <p class="hint">
       Playback uses pre-rendered <code>ko-KR-SunHiNeural</code> audio first. Browser voices are used only as fallback.
@@ -50,222 +133,244 @@ import words from '../../data/korean-words.json';
 </Layout>
 
 <script define:vars={{ sentences, words }}>
-  const koreanTextEl = document.getElementById("koreanText");
+  // ── Elements ──────────────────────────────────────────────
+  const modeSelect    = document.getElementById("modeSelect");
+  const voiceSelect   = document.getElementById("voiceSelect");
+  const rateRange     = document.getElementById("rateRange");
+  const readingTab    = document.getElementById("readingTab");
+  const dictationTab  = document.getElementById("dictationTab");
+  const readingPanel  = document.getElementById("readingPanel");
+  const dictationPanel = document.getElementById("dictationPanel");
+
+  // Reading
+  const koreanTextEl  = document.getElementById("koreanText");
   const englishTextEl = document.getElementById("englishText");
-  const statusEl = document.getElementById("status");
-  const modeSelect = document.getElementById("modeSelect");
-  const voiceSelect = document.getElementById("voiceSelect");
-  const rateRange = document.getElementById("rateRange");
-  const newBtn = document.getElementById("newBtn");
+  const readStatus    = document.getElementById("readStatus");
+  const newBtn        = document.getElementById("newBtn");
   const revealPlayBtn = document.getElementById("revealPlayBtn");
-  const playBtn = document.getElementById("playBtn");
+  const playBtn       = document.getElementById("playBtn");
 
-  const pools = {
-    sentences,
-    words
-  };
+  // Dictation
+  const dictPlayBtn   = document.getElementById("dictPlayBtn");
+  const dictSkipBtn   = document.getElementById("dictSkipBtn");
+  const dictStatus    = document.getElementById("dictStatus");
+  const dictInput     = document.getElementById("dictInput");
+  const dictSubmitBtn = document.getElementById("dictSubmitBtn");
+  const dictResult    = document.getElementById("dictResult");
+  const dictNextRow   = document.getElementById("dictNextRow");
+  const dictNextBtn   = document.getElementById("dictNextBtn");
 
+  // ── State ─────────────────────────────────────────────────
+  const pools = { sentences, words };
   const PREFETCHED_AUDIO_BASE = "/audio/korean";
 
-  let current = null;
+  let current    = null;
   let activeAudio = null;
+  let appMode    = "reading";  // "reading" | "dictation"
+  let dictState  = "ready";    // "ready" | "wrong" | "correct"
 
-  function setStatus(message) {
-    statusEl.textContent = message || "";
+  // ── Mode switching ─────────────────────────────────────────
+  readingTab.addEventListener("click",   () => switchAppMode("reading"));
+  dictationTab.addEventListener("click", () => switchAppMode("dictation"));
+
+  function switchAppMode(mode) {
+    appMode = mode;
+    stopPlayback();
+    readingTab.classList.toggle("active",    mode === "reading");
+    dictationTab.classList.toggle("active",  mode === "dictation");
+    readingPanel.classList.toggle("hidden",  mode !== "reading");
+    dictationPanel.classList.toggle("hidden", mode !== "dictation");
+    loadNewItem();
   }
 
-  function randomItem(mode) {
-    const selectedMode = mode === "words" ? "words" : "sentences";
-    const pool = pools[selectedMode] || pools.sentences;
-    const index = Math.floor(Math.random() * pool.length);
-    return {
-      ...pool[index],
-      _index: index,
-      _mode: selectedMode
-    };
-  }
-
-  function renderCurrent(item) {
-    current = item;
-    koreanTextEl.textContent = item.korean;
-    englishTextEl.textContent = item.english;
-    englishTextEl.classList.add("hidden");
-    setStatus("");
-  }
-
+  // ── Audio utilities ────────────────────────────────────────
   function stopPlayback() {
     if (activeAudio) {
       activeAudio.pause();
       activeAudio.currentTime = 0;
       activeAudio = null;
     }
-
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
-  }
-
-  function loadNewItem() {
-    stopPlayback();
-    renderCurrent(randomItem(modeSelect.value));
-  }
-
-  function revealTranslation() {
-    if (!current) return;
-    englishTextEl.classList.remove("hidden");
-  }
-
-  function getKoreanVoices() {
-    if (!("speechSynthesis" in window)) {
-      return [];
-    }
-
-    const voices = window.speechSynthesis
-      .getVoices()
-      .filter((voice) => voice.lang && voice.lang.toLowerCase().startsWith("ko"));
-
-    return voices.sort((a, b) => {
-      const rank = (voice) => {
-        const name = `${voice.name} ${voice.voiceURI}`.toLowerCase();
-        if (name.includes("sunhi")) return 0;
-        if (name.includes("online") && name.includes("korean")) return 1;
-        if (name.includes("neural") && name.includes("korean")) return 2;
-        if (name.includes("korean")) return 3;
-        return 10;
-      };
-
-      const diff = rank(a) - rank(b);
-      if (diff !== 0) return diff;
-      return a.name.localeCompare(b.name);
-    });
-  }
-
-  function populateVoiceSelect() {
-    const voices = getKoreanVoices();
-    const previousValue = voiceSelect.value;
-
-    voiceSelect.innerHTML = "";
-
-    if (!voices.length) {
-      const option = document.createElement("option");
-      option.value = "";
-      option.textContent = "No Korean fallback voice found";
-      voiceSelect.appendChild(option);
-      return;
-    }
-
-    voices.forEach((voice, index) => {
-      const option = document.createElement("option");
-      option.value = voice.voiceURI;
-      option.textContent = `${voice.name} (${voice.lang})`;
-      if (previousValue && previousValue === voice.voiceURI) {
-        option.selected = true;
-      } else if (!previousValue && index === 0) {
-        option.selected = true;
-      }
-      voiceSelect.appendChild(option);
-    });
+    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   }
 
   function getPrefetchedAudioUrl(item) {
-    if (!item || item._index === undefined || item._mode === undefined) {
-      return null;
-    }
-
-    const mode = item._mode === "words" ? "words" : "sentences";
-    return `${PREFETCHED_AUDIO_BASE}/${mode}/${item._index}.mp3`;
+    if (!item || item._index === undefined || item._mode === undefined) return null;
+    return `${PREFETCHED_AUDIO_BASE}/${item._mode}/${item._index}.mp3`;
   }
 
-  async function playPreRenderedAudio(item) {
+  async function playPreRenderedAudio(item, setStatus) {
     const url = getPrefetchedAudioUrl(item);
-    if (!url) {
-      return false;
-    }
-
+    if (!url) return false;
     try {
       const audio = new Audio(url);
       audio.playbackRate = Number(rateRange.value || 0.95);
       activeAudio = audio;
-
-      audio.onended = () => {
-        if (activeAudio === audio) {
-          activeAudio = null;
-        }
-        setStatus("");
-      };
-
-      audio.onerror = () => {
-        if (activeAudio === audio) {
-          activeAudio = null;
-        }
-      };
-
+      audio.onended = () => { if (activeAudio === audio) activeAudio = null; setStatus(""); };
+      audio.onerror = () => { if (activeAudio === audio) activeAudio = null; };
       setStatus("Playing SunHi neural audio...");
       await audio.play();
       return true;
     } catch {
-      if (activeAudio) {
-        activeAudio = null;
-      }
+      if (activeAudio) activeAudio = null;
       return false;
     }
   }
 
-  function speakBrowserVoice(text) {
-    if (!("speechSynthesis" in window)) {
-      setStatus("Speech synthesis is not supported in this browser.");
-      return;
-    }
-
-    if (!text) {
-      return;
-    }
-
+  function speakBrowserVoice(text, setStatus) {
+    if (!("speechSynthesis" in window)) { setStatus("Speech synthesis not supported."); return; }
+    if (!text) return;
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "ko-KR";
     utterance.rate = Number(rateRange.value || 0.95);
-
-    const voices = getKoreanVoices();
-    const selected = voices.find((voice) => voice.voiceURI === voiceSelect.value);
-    if (selected) {
-      utterance.voice = selected;
-    }
-
+    const voices   = getKoreanVoices();
+    const selected = voices.find(v => v.voiceURI === voiceSelect.value);
+    if (selected) utterance.voice = selected;
     utterance.onstart = () => setStatus("Using fallback browser voice...");
-    utterance.onend = () => setStatus("");
+    utterance.onend   = () => setStatus("");
     utterance.onerror = () => setStatus("Could not play audio.");
-
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
   }
 
-  async function speakKorean(item) {
-    if (!item || !item.korean) {
-      return;
-    }
-
+  async function speakKorean(item, setStatus) {
+    if (!item || !item.korean) return;
     stopPlayback();
-
-    const playedPreRendered = await playPreRenderedAudio(item);
-    if (playedPreRendered) {
-      return;
-    }
-
-    speakBrowserVoice(item.korean);
+    const played = await playPreRenderedAudio(item, setStatus);
+    if (!played) speakBrowserVoice(item.korean, setStatus);
   }
 
-  newBtn.addEventListener("click", loadNewItem);
+  // ── Voice select ───────────────────────────────────────────
+  function getKoreanVoices() {
+    if (!("speechSynthesis" in window)) return [];
+    return window.speechSynthesis.getVoices()
+      .filter(v => v.lang && v.lang.toLowerCase().startsWith("ko"))
+      .sort((a, b) => {
+        const rank = v => {
+          const n = `${v.name} ${v.voiceURI}`.toLowerCase();
+          if (n.includes("sunhi")) return 0;
+          if (n.includes("online") && n.includes("korean")) return 1;
+          if (n.includes("neural") && n.includes("korean")) return 2;
+          if (n.includes("korean")) return 3;
+          return 10;
+        };
+        return rank(a) - rank(b) || a.name.localeCompare(b.name);
+      });
+  }
+
+  function populateVoiceSelect() {
+    const voices = getKoreanVoices();
+    const prev   = voiceSelect.value;
+    voiceSelect.innerHTML = "";
+    if (!voices.length) {
+      const opt = document.createElement("option");
+      opt.value = ""; opt.textContent = "No Korean fallback voice found";
+      voiceSelect.appendChild(opt); return;
+    }
+    voices.forEach((v, i) => {
+      const opt = document.createElement("option");
+      opt.value = v.voiceURI;
+      opt.textContent = `${v.name} (${v.lang})`;
+      if (prev ? prev === v.voiceURI : i === 0) opt.selected = true;
+      voiceSelect.appendChild(opt);
+    });
+  }
+
+  // ── Random item ────────────────────────────────────────────
+  function randomItem() {
+    const mode  = modeSelect.value === "words" ? "words" : "sentences";
+    const pool  = pools[mode] || pools.sentences;
+    const index = Math.floor(Math.random() * pool.length);
+    return { ...pool[index], _index: index, _mode: mode };
+  }
+
+  // ── Load new item ──────────────────────────────────────────
+  function loadNewItem() {
+    stopPlayback();
+    current = randomItem();
+    if (appMode === "reading") {
+      renderReading(current);
+    } else {
+      renderDictation(current);
+    }
+  }
+
   modeSelect.addEventListener("change", loadNewItem);
 
+  // ── Reading mode ───────────────────────────────────────────
+  function renderReading(item) {
+    koreanTextEl.textContent = item.korean;
+    englishTextEl.textContent = item.english;
+    englishTextEl.classList.add("hidden");
+    setReadStatus("");
+  }
+
+  function setReadStatus(msg) { readStatus.textContent = msg || ""; }
+
+  newBtn.addEventListener("click", loadNewItem);
   revealPlayBtn.addEventListener("click", async () => {
-    revealTranslation();
-    await speakKorean(current);
+    englishTextEl.classList.remove("hidden");
+    await speakKorean(current, setReadStatus);
+  });
+  playBtn.addEventListener("click", () => speakKorean(current, setReadStatus));
+
+  // ── Dictation mode ─────────────────────────────────────────
+  function renderDictation(item) {
+    dictInput.value = "";
+    dictInput.disabled = false;
+    dictSubmitBtn.disabled = false;
+    dictResult.classList.add("hidden");
+    dictResult.innerHTML = "";
+    dictNextRow.classList.add("hidden");
+    dictState = "ready";
+    speakKorean(item, setDictStatus);
+    setTimeout(() => dictInput.focus(), 200);
+  }
+
+  function setDictStatus(msg) { dictStatus.textContent = msg || ""; }
+
+  dictPlayBtn.addEventListener("click",  () => speakKorean(current, setDictStatus));
+  dictSkipBtn.addEventListener("click",  loadNewItem);
+  dictNextBtn.addEventListener("click",  loadNewItem);
+  dictSubmitBtn.addEventListener("click", submitDictation);
+
+  dictInput.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.isComposing) submitDictation();
   });
 
-  playBtn.addEventListener("click", async () => {
-    await speakKorean(current);
-  });
+  function submitDictation() {
+    if (!current || dictState === "correct") return;
+    const typed   = dictInput.value.trim();
+    const correct = current.korean.trim();
+    if (!typed) return;
 
+    if (typed === correct) {
+      dictState = "correct";
+      dictInput.disabled = true;
+      dictSubmitBtn.disabled = true;
+      dictResult.className = "result-box result-correct";
+      dictResult.innerHTML =
+        `<strong>&#10003; Correct!</strong>` +
+        `<span class="result-korean">${esc(correct)}</span>` +
+        `<span class="result-english">${esc(current.english)}</span>`;
+      dictResult.classList.remove("hidden");
+      dictNextRow.classList.remove("hidden");
+    } else {
+      dictState = "wrong";
+      dictInput.value = "";
+      dictResult.className = "result-box result-wrong";
+      dictResult.innerHTML =
+        `<strong>&#10007; Incorrect — type the correct answer to continue:</strong>` +
+        `<span class="result-korean">${esc(correct)}</span>`;
+      dictResult.classList.remove("hidden");
+      dictInput.focus();
+    }
+  }
+
+  function esc(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  // ── Init ──────────────────────────────────────────────────
   if ("speechSynthesis" in window) {
     populateVoiceSelect();
     window.speechSynthesis.onvoiceschanged = populateVoiceSelect;
@@ -280,6 +385,34 @@ import words from '../../data/korean-words.json';
   .practice-shell {
     display: grid;
     gap: 0.9rem;
+  }
+
+  /* Reading / Dictation toggle */
+  .mode-toggle {
+    display: flex;
+    gap: 5px;
+    background: color-mix(in srgb, var(--muted), transparent 85%);
+    border-radius: 12px;
+    padding: 4px;
+    width: fit-content;
+  }
+
+  .mode-tab {
+    border: none;
+    border-radius: 8px;
+    padding: 6px 20px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: transparent;
+    color: var(--muted);
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .mode-tab.active {
+    background: var(--bg-soft, white);
+    color: var(--accent);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   }
 
   .control-row {
@@ -326,19 +459,160 @@ import words from '../../data/korean-words.json';
     min-height: 44px;
   }
 
-  .translation.hidden {
-    visibility: hidden;
-  }
+  .translation.hidden { visibility: hidden; }
 
   .status {
     color: var(--muted);
     min-height: 22px;
+    font-size: 0.9rem;
   }
 
   .hint {
     margin: 0;
     color: var(--muted);
     font-size: 0.86rem;
+  }
+
+  /* Dictation panel */
+  .dict-audio-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+
+  .dict-status { min-height: auto; }
+
+  .dict-input-row {
+    display: flex;
+    gap: 0.6rem;
+  }
+
+  .dict-input {
+    flex: 1;
+    border: 1.5px solid color-mix(in srgb, var(--muted), transparent 55%);
+    border-radius: 12px;
+    padding: 0.6rem 0.9rem;
+    font-size: 1.25rem;
+    font-family: inherit;
+    background: color-mix(in srgb, var(--bg-soft), transparent 10%);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .dict-input:focus { border-color: var(--accent); }
+  .dict-input:disabled { opacity: 0.5; }
+
+  /* Result feedback */
+  .result-box {
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    line-height: 1.6;
+  }
+
+  .result-box strong {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .result-correct {
+    background: color-mix(in srgb, #1a7a4a, transparent 90%);
+    border: 1px solid color-mix(in srgb, #1a7a4a, transparent 70%);
+    color: #1a7a4a;
+  }
+
+  .result-wrong {
+    background: color-mix(in srgb, #b0341d, transparent 90%);
+    border: 1px solid color-mix(in srgb, #b0341d, transparent 70%);
+    color: #b0341d;
+  }
+
+  .result-korean {
+    font-size: 1.4rem;
+    font-weight: 700;
+    display: block;
+    color: var(--text);
+  }
+
+  .result-english {
+    font-size: 0.9rem;
+    color: var(--muted);
+    display: block;
+    margin-top: 0.2rem;
+  }
+
+  /* Keyboard reference */
+  .kb-section {
+    border-top: 1px solid color-mix(in srgb, var(--muted), transparent 75%);
+    padding-top: 1rem;
+  }
+
+  .kb-title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 0.6rem;
+  }
+
+  .kb-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .kb-row {
+    display: flex;
+    gap: 3px;
+  }
+
+  .kb-row-2 { padding-left: 3%; }
+  .kb-row-3 { padding-left: 6%; }
+
+  .kb-key {
+    position: relative;
+    width: 9%;
+    aspect-ratio: 1;
+    background: var(--bg-soft, white);
+    border: 1px solid color-mix(in srgb, var(--muted), transparent 55%);
+    border-bottom: 2px solid color-mix(in srgb, var(--muted), transparent 35%);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(0.8rem, 1.3vw, 1.1rem);
+    font-weight: 700;
+    color: var(--text);
+    user-select: none;
+  }
+
+  .kb-key .qwerty {
+    position: absolute;
+    top: 2px;
+    left: 3px;
+    font-size: 0.5rem;
+    font-weight: 600;
+    color: var(--muted);
+    line-height: 1;
+  }
+
+  .kb-key .sh {
+    position: absolute;
+    top: 2px;
+    right: 3px;
+    font-size: 0.55rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .kb-note {
+    margin: 0.5rem 0 0;
+    font-size: 0.77rem;
+    color: var(--muted);
   }
 
   @media (max-width: 960px) {
