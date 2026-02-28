@@ -142,7 +142,7 @@ const links: DlesViewLink[] = orderedLinks.map((link) => ({
           <p>{link.description}</p>
           <div class="meta-row">
             <span class="badge">{link.host}</span>
-            {link.pinned && <span class="badge">favorite</span>}
+            {link.pinned && <span class="badge badge-favorite">favorite</span>}
           </div>
           <div class="btn-row">
             <a class="btn btn-online" href={link.url} target="_blank" rel="noopener noreferrer">
@@ -181,5 +181,10 @@ const links: DlesViewLink[] = orderedLinks.map((link) => ({
       color-mix(in srgb, var(--accent), white 14%),
       color-mix(in srgb, var(--accent), var(--ring) 42%)
     );
+  }
+
+  .badge-favorite {
+    background: color-mix(in srgb, #5d7dff, transparent 78%);
+    color: color-mix(in srgb, #7ea0ff, white 24%);
   }
 </style>
