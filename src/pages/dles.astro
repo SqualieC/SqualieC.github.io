@@ -11,7 +11,6 @@ type DlesViewLink = DlesLink & {
   host: string;
   description: string;
   pinned: boolean;
-  hue: number;
 };
 
 const rawLinks = dlesLinks as DlesLink[];
@@ -114,12 +113,11 @@ const pinned = filtered.filter((link) => favoriteRank(link) !== 99).sort((a, b) 
 const unpinned = filtered.filter((link) => favoriteRank(link) === 99);
 const orderedLinks = [...pinned, ...unpinned];
 
-const links: DlesViewLink[] = orderedLinks.map((link, index) => ({
+const links: DlesViewLink[] = orderedLinks.map((link) => ({
   ...link,
   host: hostFromUrl(link.url),
   description: inferDescription(link),
-  pinned: favoriteRank(link) !== 99,
-  hue: (index * 37 + 210) % 360
+  pinned: favoriteRank(link) !== 99
 }));
 ---
 
@@ -139,7 +137,7 @@ const links: DlesViewLink[] = orderedLinks.map((link, index) => ({
   <section class="projects-list">
     <div class="grid dles-grid">
       {links.map((link) => (
-        <article class="card dles-card" style={`--dles-hue: ${link.hue}`}>
+        <article class={`card ${link.pinned ? 'dles-favorite' : ''}`}>
           <h3>{link.title}</h3>
           <p>{link.description}</p>
           <div class="meta-row">
@@ -162,16 +160,16 @@ const links: DlesViewLink[] = orderedLinks.map((link, index) => ({
     align-items: stretch;
   }
 
-  .dles-card {
+  .dles-favorite {
     position: relative;
     overflow: hidden;
-    border-color: hsl(var(--dles-hue) 65% 62% / 0.45);
+    border-color: color-mix(in srgb, var(--accent), transparent 38%);
     background:
-      radial-gradient(circle at 88% -10%, hsl(var(--dles-hue) 78% 60% / 0.2), transparent 42%),
+      radial-gradient(circle at 88% -10%, color-mix(in srgb, var(--accent), transparent 72%), transparent 42%),
       linear-gradient(155deg, color-mix(in srgb, var(--card), transparent 8%), var(--bg-soft));
   }
 
-  .dles-card::before {
+  .dles-favorite::before {
     content: "";
     position: absolute;
     top: 0;
@@ -180,8 +178,8 @@ const links: DlesViewLink[] = orderedLinks.map((link, index) => ({
     height: 3px;
     background: linear-gradient(
       90deg,
-      hsl(var(--dles-hue) 78% 62% / 0.9),
-      hsl(calc(var(--dles-hue) + 25) 72% 62% / 0.9)
+      color-mix(in srgb, var(--accent), white 14%),
+      color-mix(in srgb, var(--accent), var(--ring) 42%)
     );
   }
 </style>
