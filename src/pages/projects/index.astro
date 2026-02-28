@@ -14,7 +14,7 @@ const projects = (await getCollection('projects')).sort(
     <p class="lead">Each card is generated from typed metadata, so status, platform, pricing, and links stay consistent.</p>
   </section>
 
-  <section>
+  <section class="projects-list">
     <div class="grid">
       {projects.map((project) => (
         <article class="card">

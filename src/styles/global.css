@@ -192,6 +192,10 @@ h2 {
   grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
 }
 
+.projects-list {
+  margin-top: 1rem;
+}
+
 .card {
   background: linear-gradient(155deg, color-mix(in srgb, var(--card), transparent 8%), var(--bg-soft));
   border: 1px solid color-mix(in srgb, var(--muted), transparent 70%);
