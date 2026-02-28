@@ -7,29 +7,148 @@ type DlesLink = {
   url: string;
 };
 
-const links = dlesLinks as DlesLink[];
+type DlesViewLink = DlesLink & {
+  host: string;
+  description: string;
+  pinned: boolean;
+  hue: number;
+};
+
+const rawLinks = dlesLinks as DlesLink[];
+
+function normalize(value: string): string {
+  return value.toLowerCase();
+}
+
+function hostFromUrl(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./i, '');
+  } catch {
+    return 'external';
+  }
+}
+
+function inferDescription(link: DlesLink): string {
+  const title = normalize(link.title);
+  const url = normalize(link.url);
+
+  if (title.includes('kinda hard golf')) return 'Play one tricky daily golf hole and try to finish with the best score.';
+  if (title.includes('connections')) return 'Sort sixteen words into four related groups before you run out of tries.';
+  if (title.includes('scrandle')) return 'Pick which football food photo is rated higher and climb the daily streak.';
+  if (title.includes('cutle')) return 'Solve the daily shape-cutting puzzle by finding the right slice pattern.';
+
+  if (
+    title.includes('worldle') ||
+    title.includes('globle') ||
+    title.includes('timeguessr') ||
+    title.includes('tradle') ||
+    title.includes('country') ||
+    title.includes('juxtastat')
+  ) {
+    return 'Test your geography knowledge with a daily map, country, or world-data challenge.';
+  }
+
+  if (
+    title.includes('movie') ||
+    title.includes('cine') ||
+    title.includes('framed') ||
+    title.includes('box office') ||
+    title.includes('logo') ||
+    title.includes('audio') ||
+    title.includes('song') ||
+    title.includes('musicle') ||
+    title.includes('bandle')
+  ) {
+    return 'Use visual or audio clues to guess entertainment picks in today\'s round.';
+  }
+
+  if (
+    title.includes('word') ||
+    title.includes('spell') ||
+    title.includes('stacked') ||
+    title.includes('decipher') ||
+    title.includes('angle') ||
+    title.includes('housle') ||
+    title.includes('gamedle') ||
+    title.includes('rankdle')
+  ) {
+    return 'Jump into a quick daily puzzle run built around words, patterns, or themed clues.';
+  }
+
+  if (
+    title.includes('animal') ||
+    title.includes('dog') ||
+    title.includes('cat') ||
+    title.includes('fish')
+  ) {
+    return 'Play a daily creature-themed guessing game and test your animal knowledge.';
+  }
+
+  if (url.includes('chatgpt.com')) {
+    return 'Open this saved ChatGPT link in a separate tab.';
+  }
+
+  return 'Open this daily challenge in a new tab and play directly in your browser.';
+}
+
+const favoriteMatchers = ['kinda hard golf', 'connections', 'scrandle', 'cutle'];
+
+function favoriteRank(link: DlesLink): number {
+  const title = normalize(link.title);
+  for (let i = 0; i < favoriteMatchers.length; i += 1) {
+    if (title.includes(favoriteMatchers[i])) return i;
+  }
+  return 99;
+}
+
+let removedFirstMusicle = false;
+const filtered = rawLinks.filter((link) => {
+  if (normalize(link.title).trim() === 'musicle' && !removedFirstMusicle) {
+    removedFirstMusicle = true;
+    return false;
+  }
+  return true;
+});
+
+const pinned = filtered.filter((link) => favoriteRank(link) !== 99).sort((a, b) => favoriteRank(a) - favoriteRank(b));
+const unpinned = filtered.filter((link) => favoriteRank(link) === 99);
+const orderedLinks = [...pinned, ...unpinned];
+
+const links: DlesViewLink[] = orderedLinks.map((link, index) => ({
+  ...link,
+  host: hostFromUrl(link.url),
+  description: inferDescription(link),
+  pinned: favoriteRank(link) !== 99,
+  hue: (index * 37 + 210) % 360
+}));
 ---
 
-<Layout title="Dles | SqualieC" description="Daily game links from your Dles bookmark folder.">
+<Layout title="Dles | SqualieC" description="Play your daily browser games from one page, with quick links that open in new tabs.">
   <section class="hero hero-surface">
     <p class="eyebrow">Daily Games</p>
     <h1>Dles</h1>
     <p class="lead">
-      All links below come from your Vivaldi <strong>Dles</strong> bookmarks folder. Each button opens in a new tab.
+      Your daily game list in one place. Pick a game, open it in a new tab, and keep your streaks moving.
     </p>
     <div class="meta-row">
       <span class="badge">{links.length} links</span>
+      <span class="badge">{pinned.length} pinned favorites</span>
     </div>
   </section>
 
   <section class="projects-list">
-    <div class="grid">
+    <div class="grid dles-grid">
       {links.map((link) => (
-        <article class="card">
+        <article class="card dles-card" style={`--dles-hue: ${link.hue}`}>
           <h3>{link.title}</h3>
+          <p>{link.description}</p>
+          <div class="meta-row">
+            <span class="badge">{link.host}</span>
+            {link.pinned && <span class="badge">favorite</span>}
+          </div>
           <div class="btn-row">
             <a class="btn btn-online" href={link.url} target="_blank" rel="noopener noreferrer">
-              Open
+              Play
             </a>
           </div>
         </article>
@@ -37,3 +156,32 @@ const links = dlesLinks as DlesLink[];
     </div>
   </section>
 </Layout>
+
+<style>
+  .dles-grid {
+    align-items: stretch;
+  }
+
+  .dles-card {
+    position: relative;
+    overflow: hidden;
+    border-color: hsl(var(--dles-hue) 65% 62% / 0.45);
+    background:
+      radial-gradient(circle at 88% -10%, hsl(var(--dles-hue) 78% 60% / 0.2), transparent 42%),
+      linear-gradient(155deg, color-mix(in srgb, var(--card), transparent 8%), var(--bg-soft));
+  }
+
+  .dles-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      hsl(var(--dles-hue) 78% 62% / 0.9),
+      hsl(calc(var(--dles-hue) + 25) 72% 62% / 0.9)
+    );
+  }
+</style>
