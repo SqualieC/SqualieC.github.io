@@ -5,4 +5,4 @@
 
 /admin/*
   X-Frame-Options: DENY
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://unpkg.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.github.com https://decap-oauth.squaliec.workers.dev; frame-src 'none';
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://unpkg.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.github.com https://scsite.squaliekid55.workers.dev; frame-src 'none';
