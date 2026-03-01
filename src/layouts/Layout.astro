@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { getEntry } from 'astro:content';
 
 interface Props {
   title?: string;
@@ -8,9 +9,11 @@ interface Props {
   noindex?: boolean;
 }
 
+const siteSettings = await getEntry('site', 'global');
+
 const {
-  title = 'SqualieC | Projects',
-  description = 'Build logs, playable demos, and software projects by SqualieC.',
+  title = siteSettings!.data.defaultTitleSuffix,
+  description = siteSettings!.data.defaultOgDescription,
   image = '/og-default.svg',
   noindex = false
 } = Astro.props;

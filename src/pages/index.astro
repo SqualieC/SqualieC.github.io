@@ -1,5 +1,5 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 
 const projects = (await getCollection('projects')).sort(
@@ -7,19 +7,19 @@ const projects = (await getCollection('projects')).sort(
 );
 const featured = projects.filter((project) => project.data.featured).slice(0, 4);
 const latestProject = projects[0];
+
+const siteSettings = await getEntry('site', 'global');
+const { heroHeading, heroSubtext, siteTagline } = siteSettings!.data;
 ---
 
 <Layout
-  title="SqualieC | Maker Projects"
-  description="A searchable, fast project catalog with downloadable builds and practical devlogs."
+  title={siteTagline}
+  description={heroSubtext}
 >
   <section class="hero hero-surface">
     <p class="eyebrow">Portfolio</p>
-    <h1>Project library, downloadable builds, and devlogs.</h1>
-    <p class="lead">
-      Static-first Astro architecture with typed content collections keeps the site fast while making every project
-      page consistent and easy to maintain.
-    </p>
+    <h1>{heroHeading}</h1>
+    <p class="lead">{heroSubtext}</p>
     <div class="btn-row">
       <a href="/projects" class="btn btn-secondary">Browse Projects</a>
       <a href="/projects/bassprogram" class="btn btn-primary">Download BassProgram v0.1</a>

@@ -1,0 +1,81 @@
+backend:
+  name: github
+  repo: SqualieC/personal-website
+  branch: main
+  base_url: https://decap-oauth.squaliec.workers.dev
+
+media_folder: public/uploads
+public_folder: /uploads
+
+collections:
+  # ── Blog Posts ──────────────────────────────────────────────────────────────
+  - name: blog
+    label: Blog Posts
+    folder: src/content/blog
+    create: true
+    slug: "{{slug}}"
+    extension: mdx
+    format: frontmatter
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Summary, name: summary, widget: text }
+      - { label: Updated At, name: updatedAt, widget: datetime, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
+      - { label: Tags, name: tags, widget: list, default: [], field: { label: Tag, name: tag, widget: string } }
+      - { label: Body, name: body, widget: markdown }
+
+  # ── Tools ───────────────────────────────────────────────────────────────────
+  - name: tools
+    label: Tools
+    folder: src/content/tools
+    create: true
+    slug: "{{slug}}"
+    extension: mdx
+    format: frontmatter
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Summary, name: summary, widget: text }
+      - { label: Updated At, name: updatedAt, widget: datetime, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
+      - { label: Tags, name: tags, widget: list, default: [], field: { label: Tag, name: tag, widget: string } }
+      - { label: Body, name: body, widget: markdown }
+
+  # ── Projects ─────────────────────────────────────────────────────────────────
+  - name: projects
+    label: Projects
+    folder: src/content/projects
+    create: true
+    slug: "{{slug}}"
+    extension: mdx
+    format: frontmatter
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Pitch, name: pitch, widget: text }
+      - { label: Tags, name: tags, widget: list, field: { label: Tag, name: tag, widget: string } }
+      - { label: Status, name: status, widget: select, options: [planning, active, paused, archived], default: active }
+      - { label: Screenshots, name: screenshots, widget: list, default: [], field: { label: Path, name: screenshot, widget: string } }
+      - { label: Repo URL, name: repoUrl, widget: string, required: false, hint: "Full https:// URL" }
+      - { label: Demo URL, name: demoUrl, widget: string, required: false, hint: "Full URL or root-relative /path" }
+      - { label: Download URL, name: downloadUrl, widget: string, required: false }
+      - { label: Download Label, name: downloadLabel, widget: string, required: false }
+      - { label: Secondary Download URL, name: secondaryDownloadUrl, widget: string, required: false }
+      - { label: Secondary Download Label, name: secondaryDownloadLabel, widget: string, required: false }
+      - { label: Price Model, name: priceModel, widget: select, options: [free, paid, donation, freemium], default: free }
+      - { label: Platform, name: platform, widget: select, multiple: true, options: [web, windows, mac, linux, android, ios] }
+      - { label: Updated At, name: updatedAt, widget: datetime, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
+      - { label: Uses Mic/Audio, name: usesMicAudio, widget: boolean, default: false }
+      - { label: Monetization, name: monetizationType, widget: select, options: [none, stripe, gumroad, kofi, other], default: none }
+      - { label: Featured, name: featured, widget: boolean, default: false }
+      - { label: Body, name: body, widget: markdown }
+
+  # ── Site Settings ────────────────────────────────────────────────────────────
+  - name: settings
+    label: Site Settings
+    files:
+      - label: Global Settings
+        name: global
+        file: src/content/site/global.json
+        fields:
+          - { label: Hero Heading, name: heroHeading, widget: string, hint: "Main H1 on the homepage" }
+          - { label: Hero Subtext, name: heroSubtext, widget: text, hint: "Lead paragraph under the hero heading" }
+          - { label: Site Tagline, name: siteTagline, widget: string, hint: "Homepage browser tab title" }
+          - { label: Default OG Description, name: defaultOgDescription, widget: text, hint: "Fallback meta description for pages without their own" }
+          - { label: Default Page Title, name: defaultTitleSuffix, widget: string, hint: "Fallback <title> used in Layout.astro" }

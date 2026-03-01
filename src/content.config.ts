@@ -49,4 +49,15 @@ const tools = defineCollection({
   })
 });
 
-export const collections = { projects, blog, tools };
+const site = defineCollection({
+  type: 'data',
+  schema: z.object({
+    heroHeading: z.string(),
+    heroSubtext: z.string(),
+    siteTagline: z.string(),
+    defaultOgDescription: z.string(),
+    defaultTitleSuffix: z.string().default('SqualieC | Projects')
+  })
+});
+
+export const collections = { projects, blog, tools, site };
