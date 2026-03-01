@@ -104,14 +104,6 @@
         "url":  "https://eruptle.app/"
     },
     {
-        "title":  "Cuedle 2010",
-        "url":  "https://cuedle.fun/decade/2010s"
-    },
-    {
-        "title":  "Cuedle 1980",
-        "url":  "https://cuedle.fun/decade/1980s"
-    },
-    {
         "title":  "Musicle 2000",
         "url":  "https://musicle.app/2000s"
     },
@@ -210,9 +202,5 @@
     {
         "title":  "Cutle",
         "url":  "https://pfiffel.com/cutle/"
-    },
-    {
-        "title":  "New chat",
-        "url":  "https://chatgpt.com/c/699502a3-7d64-832d-a1b0-1ada4e0633c8"
     }
 ]
