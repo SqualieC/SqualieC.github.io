@@ -8,6 +8,10 @@ const projects = (await getCollection('projects')).sort(
 const featured = projects.filter((project) => project.data.featured).slice(0, 4);
 const latestProject = projects[0];
 
+const recentPosts = (await getCollection('blog')).sort(
+  (a, b) => b.data.updatedAt.valueOf() - a.data.updatedAt.valueOf()
+).slice(0, 2);
+
 const siteSettings = await getEntry('site', 'global');
 const { heroHeading, heroSubtext, siteTagline } = siteSettings!.data;
 ---
@@ -18,6 +22,7 @@ const { heroHeading, heroSubtext, siteTagline } = siteSettings!.data;
 >
   <section class="hero hero-surface">
     <p class="eyebrow">Portfolio</p>
+    <p class="hero-intro">Hi, I'm <strong>Squalie</strong>. I'm a math major with a background in physics &amp; CS, and I play bass.</p>
     <h1>{heroHeading}</h1>
     <p class="lead">{heroSubtext}</p>
     <div class="btn-row">
@@ -25,7 +30,11 @@ const { heroHeading, heroSubtext, siteTagline } = siteSettings!.data;
       <a href="/projects/bassprogram" class="btn btn-primary">Download BassProgram v0.1</a>
     </div>
     {latestProject && (
-      <p class="lead">Latest update: <strong>{latestProject.data.title}</strong> ({latestProject.data.updatedAt.toISOString().slice(0, 10)})</p>
+      <div class="meta-row">
+        <a class="badge badge-link" href={`/projects/${latestProject.slug}`}>
+          Latest: {latestProject.data.title} · {latestProject.data.updatedAt.toISOString().slice(0, 10)}
+        </a>
+      </div>
     )}
   </section>
 
@@ -52,4 +61,19 @@ const { heroHeading, heroSubtext, siteTagline } = siteSettings!.data;
       ))}
     </div>
   </section>
+
+  {recentPosts.length > 0 && (
+    <section>
+      <h2 class="section-title">Recent Posts</h2>
+      <div class="grid">
+        {recentPosts.map((post) => (
+          <article class="card">
+            <h3>{post.data.title}</h3>
+            <p>{post.data.summary}</p>
+            <a class="cta" href={`/blog/${post.slug}`}>Read post</a>
+          </article>
+        ))}
+      </div>
+    </section>
+  )}
 </Layout>

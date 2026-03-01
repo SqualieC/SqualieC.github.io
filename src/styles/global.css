@@ -179,6 +179,28 @@ a {
   font-weight: 600;
 }
 
+.hero-intro {
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.hero-intro strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.badge-link {
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 140ms ease;
+}
+
+.badge-link:hover {
+  background: color-mix(in srgb, var(--accent), transparent 70%);
+}
+
 h1,
 h2,
 h3 {
