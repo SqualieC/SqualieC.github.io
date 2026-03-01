@@ -20,11 +20,9 @@ const projects = defineCollection({
     downloadLabel: z.string().optional(),
     secondaryDownloadUrl: linkSchema.optional(),
     secondaryDownloadLabel: z.string().optional(),
-    priceModel: z.enum(['free', 'paid', 'donation', 'freemium']),
     platform: z.array(z.enum(['web', 'windows', 'mac', 'linux', 'android', 'ios'])),
     updatedAt: z.coerce.date(),
     usesMicAudio: z.boolean().default(false),
-    monetizationType: z.enum(['none', 'stripe', 'gumroad', 'kofi', 'other']).default('none'),
     featured: z.boolean().default(false)
   })
 });

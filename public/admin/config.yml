@@ -58,11 +58,9 @@ collections:
       - { label: Download Label, name: downloadLabel, widget: string, required: false }
       - { label: Secondary Download URL, name: secondaryDownloadUrl, widget: string, required: false }
       - { label: Secondary Download Label, name: secondaryDownloadLabel, widget: string, required: false }
-      - { label: Price Model, name: priceModel, widget: select, options: [free, paid, donation, freemium], default: free }
       - { label: Platform, name: platform, widget: select, multiple: true, options: [web, windows, mac, linux, android, ios] }
       - { label: Updated At, name: updatedAt, widget: datetime, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
       - { label: Uses Mic/Audio, name: usesMicAudio, widget: boolean, default: false }
-      - { label: Monetization, name: monetizationType, widget: select, options: [none, stripe, gumroad, kofi, other], default: none }
       - { label: Featured, name: featured, widget: boolean, default: false }
       - { label: Body, name: body, widget: markdown }
 

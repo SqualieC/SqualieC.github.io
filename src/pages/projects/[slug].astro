@@ -40,7 +40,6 @@ const screenshot = project.data.screenshots[0] ?? '/og-default.svg';
 
     <div class="meta-row">
       <span class="badge">{project.data.status}</span>
-      <span class="badge">{project.data.priceModel}</span>
       <span class="badge">Updated {project.data.updatedAt.toISOString().slice(0, 10)}</span>
     </div>
 
@@ -67,10 +66,6 @@ const screenshot = project.data.screenshots[0] ?? '/og-default.svg';
         <div>
           <dt>Status</dt>
           <dd>{project.data.status}</dd>
-        </div>
-        <div>
-          <dt>Pricing</dt>
-          <dd>{project.data.priceModel}</dd>
         </div>
         <div>
           <dt>Platform</dt>
