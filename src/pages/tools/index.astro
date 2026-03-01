@@ -11,13 +11,15 @@ const tools = (await getCollection('tools')).sort((a, b) => b.data.updatedAt.val
     <h1>Tooling Notes</h1>
   </section>
 
-  <section class="grid">
-    {tools.map((tool) => (
-      <article class="card">
-        <h3>{tool.data.title}</h3>
-        <p>{tool.data.summary}</p>
-        <a class="cta" href={`/tools/${tool.slug}`}>Open note</a>
-      </article>
-    ))}
+  <section class="projects-list">
+    <div class="grid">
+      {tools.map((tool) => (
+        <article class="card">
+          <h3>{tool.data.title}</h3>
+          <p>{tool.data.summary}</p>
+          <a class="cta" href={`/tools/${tool.slug}`}>Open note</a>
+        </article>
+      ))}
+    </div>
   </section>
 </Layout>
