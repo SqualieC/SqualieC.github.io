@@ -1,14 +1,15 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --bg: #070e1f;
-  --bg-soft: #0f1a35;
-  --card: #13244b;
-  --text: #f3f7ff;
-  --muted: #a8b8de;
-  --accent: #57e3c8;
-  --accent-2: #ff8a5b;
-  --ring: #7fe8d5;
+  --bg: #0c1729;
+  --bg-soft: #122036;
+  --card: #1a2f54;
+  --text: #eef5ff;
+  --muted: #b8ceee;
+  --accent: #28edc4;
+  --accent-2: #ff6b38;
+  --ring: #50edda;
 }
 
 * {
@@ -23,11 +24,21 @@ body {
 
 body {
   color: var(--text);
-  font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+  font-family: 'Inter', "Segoe UI", sans-serif;
   background:
-    radial-gradient(circle at 15% -10%, #17315d 0%, transparent 40%),
-    radial-gradient(circle at 85% -25%, #4e2350 0%, transparent 35%),
+    radial-gradient(circle at 15% -10%, #1e4278 0%, transparent 45%),
+    radial-gradient(circle at 85% -25%, #662870 0%, transparent 40%),
     var(--bg);
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.04;
 }
 
 a {
@@ -52,6 +63,8 @@ a {
 .site-shell {
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 1;
 }
 
 .site-header,
@@ -100,7 +113,7 @@ a {
 }
 
 .site-main {
-  padding: 2rem 0 3rem;
+  padding: 2.5rem 0 4.5rem;
 }
 
 .site-footer {
@@ -148,7 +161,7 @@ a {
 .hero {
   display: grid;
   gap: 1rem;
-  margin-top: 1.2rem;
+  margin-top: 1.8rem;
 }
 
 .hero-surface {
@@ -161,8 +174,9 @@ a {
 .eyebrow {
   text-transform: uppercase;
   color: var(--accent);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   font-size: 0.75rem;
+  font-weight: 600;
 }
 
 h1,
@@ -188,7 +202,7 @@ h2 {
 
 .grid {
   display: grid;
-  gap: 1rem;
+  gap: 1.25rem;
   grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
 }
 
@@ -199,14 +213,17 @@ h2 {
 .card {
   background: linear-gradient(155deg, color-mix(in srgb, var(--card), transparent 8%), var(--bg-soft));
   border: 1px solid color-mix(in srgb, var(--muted), transparent 70%);
+  border-left: 2px solid color-mix(in srgb, var(--accent), transparent 72%);
   border-radius: 16px;
-  padding: 1rem;
-  transition: transform 140ms ease, border-color 140ms ease;
+  padding: 1.3rem;
+  transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
 }
 
 .card:hover {
   transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--accent), transparent 55%);
+  border-color: color-mix(in srgb, var(--accent), transparent 40%);
+  border-left-color: var(--accent);
+  box-shadow: 0 4px 28px color-mix(in srgb, var(--accent), transparent 82%);
 }
 
 .card p {
@@ -297,7 +314,7 @@ h2 {
 }
 
 .section-title {
-  margin: 2.2rem 0 1rem;
+  margin: 3rem 0 1.2rem;
 }
 
 .prose {
